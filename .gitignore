@@ -32,3 +32,5 @@
 *.app
 
 TheCherno/build/*
+
+networking/asio/build/*
