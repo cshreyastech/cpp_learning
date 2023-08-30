@@ -1,0 +1,4 @@
+# Ignore all build folders
+[Bb][Uu][Ii][Ll][Dd]/*
+
+build/*
