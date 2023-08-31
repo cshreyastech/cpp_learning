@@ -7,16 +7,23 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread -std=c++2a -DMINI
 set(asio_header_dir "${PROJECT_SOURCE_DIR}/external/asio-1.28.1/include")
 
 
-add_executable(SimpleExampleSync ${PROJECT_SOURCE_DIR}/SimpleExample/src/SimpleExampleSync.cpp)
-
+add_executable(SimpleExampleSync ${PROJECT_SOURCE_DIR}/01-SimpleExample/src/SimpleExampleSync.cpp)
 target_include_directories(SimpleExampleSync 
   PRIVATE ${asio_header_dir}
 )
 
-add_executable(SimpleExampleAsync ${PROJECT_SOURCE_DIR}/SimpleExample/src/SimpleExampleAsync.cpp)
-
+add_executable(SimpleExampleAsync ${PROJECT_SOURCE_DIR}/01-SimpleExample/src/SimpleExampleAsync.cpp)
 target_include_directories(SimpleExampleAsync 
   PRIVATE ${asio_header_dir}
+)
+
+set(mmo_net_common_header_dir "${PROJECT_SOURCE_DIR}/02-MMO/NetCommon/include")
+
+
+add_executable(02-MMO-SimpleClient ${PROJECT_SOURCE_DIR}/02-MMO/NetClient/src/SimpleClient.cpp)
+target_include_directories(02-MMO-SimpleClient 
+  PRIVATE ${asio_header_dir}
+  PRIVATE ${mmo_net_common_header_dir}
 )
 
 

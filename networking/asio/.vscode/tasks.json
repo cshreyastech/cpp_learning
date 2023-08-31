@@ -10,6 +10,7 @@
         "${file}",
         "-pthread",
         "-I${workspaceRoot}/external/asio-1.28.1/include",
+        "-I${workspaceRoot}/02-MMO/NetCommon/include",
         "-o",
         "${fileDirname}/build/${fileBasenameNoExtension}"
       ],
