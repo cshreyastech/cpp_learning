@@ -11,7 +11,7 @@
         "-pthread",
         "-I${workspaceRoot}/external/asio-1.28.1/include",
         "-o",
-        "${fileDirname}/${fileBasenameNoExtension}"
+        "${fileDirname}/build/${fileBasenameNoExtension}"
       ],
       "options": {
         "cwd": "${fileDirname}"
