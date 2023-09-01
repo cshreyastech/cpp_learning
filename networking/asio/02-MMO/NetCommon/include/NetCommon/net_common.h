@@ -1,5 +1,4 @@
-#ifndef NET_COMMON_H
-#define NET_COMMON_H
+#pragma once
 
 #include <thread>
 #include <mutex>
@@ -15,5 +14,3 @@
 #include <asio.hpp>
 #include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
-
-#endif

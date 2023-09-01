@@ -1,8 +1,8 @@
-#ifndef OLC_NET_H
-#define OLC_NET_H
+#pragma once
 
 #include "net_common.h"
+#include "net_tsqueue.h"
 #include "net_message.h"
 #include "net_client.h"
-
-#endif
+#include "net_server.h"
+#include "net_connection.h"
