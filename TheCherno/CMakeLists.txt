@@ -8,6 +8,8 @@ set(source_dir "${PROJECT_SOURCE_DIR}/src/")
 
 
 add_executable(04-hello_world ${source_dir}/04-hello_world.cpp)
+add_executable(16-pointers ${source_dir}/16-pointers.cpp)
+add_executable(43-smart_pointers ${source_dir}/43-smart_pointers.cpp)
 add_executable(52-multiple_return ${source_dir}/52-multiple_return.cpp)
 add_executable(52-templates ${source_dir}/53-templates.cpp)
 add_executable(58-function_pointers ${source_dir}/58-function_pointers.cpp)
