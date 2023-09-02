@@ -5,7 +5,8 @@ project(TheCherno)
 
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread -std=c++2a -DMINIGLOG=ON")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++2a -DMINIGLOG=ON")
-set(asio_header_dir "${PROJECT_SOURCE_DIR}/external/asio-1.18.2/include")
+# set(asio_header_dir "${PROJECT_SOURCE_DIR}/external/asio-1.18.2/include")
+set(asio_header_dir "${PROJECT_SOURCE_DIR}/external/asio-1.28.1/include")
 
 
 add_executable(SimpleExampleSync ${PROJECT_SOURCE_DIR}/01-SimpleExample/src/SimpleExampleSync.cpp)
