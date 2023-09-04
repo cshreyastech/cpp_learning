@@ -72,25 +72,25 @@ set(target_common_libraries
 # target_link_libraries(03-olcPGEX_Client ${target_common_libraries})
 
 ###################################################
-set(mmo_server_header_dir "${PROJECT_SOURCE_DIR}/04-PC/PC_Server/include")
+set(ros_ml_server_header_dir "${PROJECT_SOURCE_DIR}/04-ROS_ML/ROS_ML_Server/include")
 
-set(pc_server 04-pc_Server)
-add_executable(${pc_server}
-  ${PROJECT_SOURCE_DIR}/04-PC/PC_Server/src/PC_Server.cpp)
+set(ros_ml_server 04-ros_ml_Server)
+add_executable(${ros_ml_server}
+  ${PROJECT_SOURCE_DIR}/04-ROS_ML/ROS_ML_Server/src/ROS_ML_Server.cpp)
   
-target_include_directories(${pc_server} 
+target_include_directories(${ros_ml_server} 
   PRIVATE ${asio_header_dir}
-  PRIVATE ${mmo_server_header_dir}
+  PRIVATE ${ros_ml_server_header_dir}
 )
 
-target_link_libraries(${pc_server} ${target_common_libraries})
+target_link_libraries(${ros_ml_server} ${target_common_libraries})
 
-set(pc_client 04-pc_Client)
-add_executable(${pc_client}
-  ${PROJECT_SOURCE_DIR}/04-PC/PC_Client/src/PC_Client.cpp)
+set(ros_ml_client 04-ros_ml_Client)
+add_executable(${ros_ml_client}
+  ${PROJECT_SOURCE_DIR}/04-ROS_ML/ROS_ML_Client/src/ROS_ML_Client.cpp)
   
-target_include_directories(${pc_client} 
+target_include_directories(${ros_ml_client} 
   PRIVATE ${asio_header_dir}
 )
 
-target_link_libraries(${pc_client} ${target_common_libraries})
+target_link_libraries(${ros_ml_client} ${target_common_libraries})
