@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/external/asio-1.28.1/include",
-                "${workspaceFolder}/02-MMO/NetClient/include"
+                "${workspaceFolder}/02-MMO/NetClient/include",
+                "${workspaceFolder}/02-MMO/MMO_Server/include",
             ],
             "defines": [],
             "compilerPath": "/usr/lib/ccache/g++-9",

@@ -11,6 +11,7 @@
         "-pthread",
         "-I${workspaceRoot}/external/asio-1.28.1/include",
         "-I${workspaceRoot}/02-MMO/NetCommon/include",
+        "-I${workspaceRoot}/02-MMO/MMO_Server/include",
         "-o",
         "${fileDirname}/build/${fileBasenameNoExtension}"
       ],

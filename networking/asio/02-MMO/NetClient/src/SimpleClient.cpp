@@ -65,7 +65,7 @@ int main()
 
         c.PingServer();
         c.MessageAll();
-        bQuit = true;
+        // bQuit = true;
 				auto msg = c.Incoming().pop_front().msg;
 
 				switch (msg.header.id)
