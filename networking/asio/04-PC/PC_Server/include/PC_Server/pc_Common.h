@@ -6,7 +6,7 @@
 #include "olcPixelGameEngine.h"
 
 #define OLC_PGEX_NETWORK
-#include "olcPGEX_Network.h"
+#include "pc_Network.h"
 
 enum class GameMsg : uint32_t
 {
