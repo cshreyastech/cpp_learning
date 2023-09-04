@@ -38,3 +38,15 @@ struct sPlayerDescription
 	olc::vf2d vPos;
 	olc::vf2d vVel;
 };
+
+class RosML
+{
+public: // User Override Interfaces
+	// Called once on application startup, use to load your resources
+	virtual bool OnUserCreate();
+	// Called every frame, and provides you with a time per frame value
+	virtual bool OnUserUpdate();
+	// Called once on application termination, so you can be one clean coder
+	virtual bool OnUserDestroy();
+
+};
