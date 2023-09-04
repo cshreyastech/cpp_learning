@@ -32,8 +32,7 @@ set(asio_header_dir "${PROJECT_SOURCE_DIR}/external/asio-1.28.1/include")
 #   PRIVATE ${asio_header_dir}
 #   PRIVATE ${mmo_net_common_header_dir}
 # )
-
-
+###################################################
 
 set(target_common_libraries
   PRIVATE glfw 
@@ -52,23 +51,46 @@ set(target_common_libraries
   PRIVATE png
   )
 
-set(mmo_server_header_dir "${PROJECT_SOURCE_DIR}/03-olcPGEX/MMO_Server/include")
-add_executable(03-olcPGEX_Server  
-  ${PROJECT_SOURCE_DIR}/03-olcPGEX/MMO_Server/src/MMO_Server.cpp)
+# set(mmo_server_header_dir "${PROJECT_SOURCE_DIR}/03-olcPGEX/MMO_Server/include")
+# add_executable(03-olcPGEX_Server  
+#   ${PROJECT_SOURCE_DIR}/03-olcPGEX/MMO_Server/src/MMO_Server.cpp)
   
-target_include_directories(03-olcPGEX_Server 
+# target_include_directories(03-olcPGEX_Server 
+#   PRIVATE ${asio_header_dir}
+#   PRIVATE ${mmo_server_header_dir}
+# )
+
+# target_link_libraries(03-olcPGEX_Server ${target_common_libraries})
+
+# add_executable(03-olcPGEX_Client  
+#   ${PROJECT_SOURCE_DIR}/03-olcPGEX/MMO_Client/src/MMO_Client.cpp)
+  
+# target_include_directories(03-olcPGEX_Client 
+#   PRIVATE ${asio_header_dir}
+# )
+
+# target_link_libraries(03-olcPGEX_Client ${target_common_libraries})
+
+###################################################
+set(mmo_server_header_dir "${PROJECT_SOURCE_DIR}/04-PC/MMO_Server/include")
+
+set(pc_server 04-pc_Server)
+add_executable(${pc_server}
+  ${PROJECT_SOURCE_DIR}/04-PC/MMO_Server/src/MMO_Server.cpp)
+  
+target_include_directories(${pc_server} 
   PRIVATE ${asio_header_dir}
   PRIVATE ${mmo_server_header_dir}
 )
 
-target_link_libraries(03-olcPGEX_Server ${target_common_libraries})
+target_link_libraries(${pc_server} ${target_common_libraries})
 
-add_executable(03-olcPGEX_Client  
-  ${PROJECT_SOURCE_DIR}/03-olcPGEX/MMO_Client/src/MMO_Client.cpp)
+set(pc_client 04-pc_Client)
+add_executable(${pc_client}
+  ${PROJECT_SOURCE_DIR}/04-PC/MMO_Client/src/MMO_Client.cpp)
   
-target_include_directories(03-olcPGEX_Client 
+target_include_directories(${pc_client} 
   PRIVATE ${asio_header_dir}
-  # PRIVATE ./MMO_Server/include
 )
 
-target_link_libraries(03-olcPGEX_Client ${target_common_libraries})
+target_link_libraries(${pc_client} ${target_common_libraries})
