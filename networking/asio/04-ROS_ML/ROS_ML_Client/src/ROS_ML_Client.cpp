@@ -16,41 +16,41 @@ public:
 private:
 	olc::TileTransformedView tv;
 
-	std::string sWorldMap =
-		"################################"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..........####...####.........#"
-		"#..........#.........#.........#"
-		"#..........#.........#.........#"
-		"#..........#.........#.........#"
-		"#..........##############......#"
-		"#..............................#"
-		"#..................#.#.#.#.....#"
-		"#..............................#"
-		"#..................#.#.#.#.....#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"#..............................#"
-		"################################";
+	// std::string sWorldMap =
+	// 	"################################"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..........####...####.........#"
+	// 	"#..........#.........#.........#"
+	// 	"#..........#.........#.........#"
+	// 	"#..........#.........#.........#"
+	// 	"#..........##############......#"
+	// 	"#..............................#"
+	// 	"#..................#.#.#.#.....#"
+	// 	"#..............................#"
+	// 	"#..................#.#.#.#.....#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"#..............................#"
+	// 	"################################";
 
-	olc::vi2d vWorldSize = { 32, 32 };
+	// olc::vi2d vWorldSize = { 32, 32 };
 private:
 	std::unordered_map<uint32_t, sPlayerDescription> mapObjects;
 	uint32_t nPlayerID = 0;
@@ -63,9 +63,9 @@ public:
 	{
 		tv = olc::TileTransformedView({ ScreenWidth(), ScreenHeight() }, { 8, 8 });
 
-		//mapObjects[0].nUniqueID = 0;
+		mapObjects[0].nUniqueID = 0;
 		//mapObjects[0].vPos = { 3.0f, 3.0f };
-
+		mapObjects[0].n_points = 0;
 		if (Connect("127.0.0.1", 60000))
 		{
 			return true;
@@ -90,7 +90,8 @@ public:
 					std::cout << "Server accepted client - you're in!\n";
 					olc::net::message<GameMsg> msg;
 					msg.header.id = GameMsg::Client_RegisterWithServer;
-					descPlayer.vPos = { 3.0f, 3.0f };
+					// descPlayer.vPos = { 3.0f, 3.0f };
+					descPlayer.n_points = 0;
 					msg << descPlayer;
 					Send(msg);
 					break;
@@ -99,8 +100,12 @@ public:
 				case(GameMsg::Client_AssignID):
 				{
 					// Server is assigning us OUR id
+					uint32_t n_points;
+					msg >> n_points;
 					msg >> nPlayerID;
+
 					std::cout << "Assigned Client ID = " << nPlayerID << "\n";
+					std::cout << "n_points = " << n_points << "\n";
 					break;
 				}
 
@@ -145,123 +150,123 @@ public:
 			DrawString({ 10,10 }, "Waiting To Connect...", olc::WHITE);
 			return true;
 		}
+		mapObjects[nPlayerID].data_from_ml = 1.001f;
+
+
+		// // Control of Player Object
+		// mapObjects[nPlayerID].vVel = { 0.0f, 0.0f };
+		// if (GetKey(olc::Key::W).bHeld) mapObjects[nPlayerID].vVel += { 0.0f, -1.0f };
+		// if (GetKey(olc::Key::S).bHeld) mapObjects[nPlayerID].vVel += { 0.0f, +1.0f };
+		// if (GetKey(olc::Key::A).bHeld) mapObjects[nPlayerID].vVel += { -1.0f, 0.0f };
+		// if (GetKey(olc::Key::D).bHeld) mapObjects[nPlayerID].vVel += { +1.0f, 0.0f };
+
+		// if (mapObjects[nPlayerID].vVel.mag2() > 0)
+		// 	mapObjects[nPlayerID].vVel = mapObjects[nPlayerID].vVel.norm() * 4.0f;
+
+		// // Update objects locally
+		// for (auto& object : mapObjects)
+		// {
+		// 	// Where will object be worst case?
+		// 	olc::vf2d vPotentialPosition = object.second.vPos + object.second.vVel * fElapsedTime;
+
+		// 	// Extract region of world cells that could have collision this frame
+		// 	olc::vi2d vCurrentCell = object.second.vPos.floor();
+		// 	olc::vi2d vTargetCell = vPotentialPosition;
+		// 	olc::vi2d vAreaTL = (vCurrentCell.min(vTargetCell) - olc::vi2d(1, 1)).max({ 0,0 });
+		// 	olc::vi2d vAreaBR = (vCurrentCell.max(vTargetCell) + olc::vi2d(1, 1)).min(vWorldSize);
+
+		// 	// Iterate through each cell in test area
+		// 	olc::vi2d vCell;
+		// 	for (vCell.y = vAreaTL.y; vCell.y <= vAreaBR.y; vCell.y++)
+		// 	{
+		// 		for (vCell.x = vAreaTL.x; vCell.x <= vAreaBR.x; vCell.x++)
+		// 		{
+		// 			// Check if the cell is actually solid...
+		// 		//	olc::vf2d vCellMiddle = vCell.floor();
+		// 			if (sWorldMap[vCell.y * vWorldSize.x + vCell.x] == '#')
+		// 			{
+		// 				// ...it is! So work out nearest point to future player position, around perimeter
+		// 				// of cell rectangle. We can test the distance to this point to see if we have
+		// 				// collided.
+
+		// 				olc::vf2d vNearestPoint;
+		// 				// Inspired by this (very clever btw) 
+		// 				// https://stackoverflow.com/questions/45370692/circle-rectangle-collision-response
+		// 				vNearestPoint.x = std::max(float(vCell.x), std::min(vPotentialPosition.x, float(vCell.x + 1)));
+		// 				vNearestPoint.y = std::max(float(vCell.y), std::min(vPotentialPosition.y, float(vCell.y + 1)));
+
+		// 				// But modified to work :P
+		// 				olc::vf2d vRayToNearest = vNearestPoint - vPotentialPosition;
+		// 				float fOverlap = object.second.fRadius - vRayToNearest.mag();
+		// 				if (std::isnan(fOverlap)) fOverlap = 0;// Thanks Dandistine!
+
+		// 				// If overlap is positive, then a collision has occurred, so we displace backwards by the 
+		// 				// overlap amount. The potential position is then tested against other tiles in the area
+		// 				// therefore "statically" resolving the collision
+		// 				if (fOverlap > 0)
+		// 				{
+		// 					// Statically resolve the collision
+		// 					vPotentialPosition = vPotentialPosition - vRayToNearest.norm() * fOverlap;
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+
+		// 	// Set the objects new position to the allowed potential position
+		// 	object.second.vPos = vPotentialPosition;
+		// }
 
 
 
 
 
 
-		// Control of Player Object
-		mapObjects[nPlayerID].vVel = { 0.0f, 0.0f };
-		if (GetKey(olc::Key::W).bHeld) mapObjects[nPlayerID].vVel += { 0.0f, -1.0f };
-		if (GetKey(olc::Key::S).bHeld) mapObjects[nPlayerID].vVel += { 0.0f, +1.0f };
-		if (GetKey(olc::Key::A).bHeld) mapObjects[nPlayerID].vVel += { -1.0f, 0.0f };
-		if (GetKey(olc::Key::D).bHeld) mapObjects[nPlayerID].vVel += { +1.0f, 0.0f };
+		// // Handle Pan & Zoom
+		// if (GetMouse(2).bPressed) tv.StartPan(GetMousePos());
+		// if (GetMouse(2).bHeld) tv.UpdatePan(GetMousePos());
+		// if (GetMouse(2).bReleased) tv.EndPan(GetMousePos());
+		// if (GetMouseWheel() > 0) tv.ZoomAtScreenPos(1.5f, GetMousePos());
+		// if (GetMouseWheel() < 0) tv.ZoomAtScreenPos(0.75f, GetMousePos());
 
-		if (mapObjects[nPlayerID].vVel.mag2() > 0)
-			mapObjects[nPlayerID].vVel = mapObjects[nPlayerID].vVel.norm() * 4.0f;
+		// // Clear World
+		// Clear(olc::BLACK);
 
-		// Update objects locally
-		for (auto& object : mapObjects)
-		{
-			// Where will object be worst case?
-			olc::vf2d vPotentialPosition = object.second.vPos + object.second.vVel * fElapsedTime;
+		// // Draw World
+		// olc::vi2d vTL = tv.GetTopLeftTile().max({ 0,0 });
+		// olc::vi2d vBR = tv.GetBottomRightTile().min(vWorldSize);
+		// olc::vi2d vTile;
+		// for (vTile.y = vTL.y; vTile.y < vBR.y; vTile.y++)
+		// 	for (vTile.x = vTL.x; vTile.x < vBR.x; vTile.x++)
+		// 	{
+		// 		if (sWorldMap[vTile.y * vWorldSize.x + vTile.x] == '#')
+		// 		{
+		// 			tv.DrawRect(vTile, { 1.0f, 1.0f });
+		// 			tv.DrawRect(olc::vf2d(vTile) + olc::vf2d(0.1f, 0.1f), { 0.8f, 0.8f });
+		// 		}
+		// 	}
 
-			// Extract region of world cells that could have collision this frame
-			olc::vi2d vCurrentCell = object.second.vPos.floor();
-			olc::vi2d vTargetCell = vPotentialPosition;
-			olc::vi2d vAreaTL = (vCurrentCell.min(vTargetCell) - olc::vi2d(1, 1)).max({ 0,0 });
-			olc::vi2d vAreaBR = (vCurrentCell.max(vTargetCell) + olc::vi2d(1, 1)).min(vWorldSize);
+		// // Draw World Objects
+		// for (auto& object : mapObjects)
+		// {
+		// 	// Draw Boundary
+		// 	tv.DrawCircle(object.second.vPos, object.second.fRadius);
 
-			// Iterate through each cell in test area
-			olc::vi2d vCell;
-			for (vCell.y = vAreaTL.y; vCell.y <= vAreaBR.y; vCell.y++)
-			{
-				for (vCell.x = vAreaTL.x; vCell.x <= vAreaBR.x; vCell.x++)
-				{
-					// Check if the cell is actually solid...
-				//	olc::vf2d vCellMiddle = vCell.floor();
-					if (sWorldMap[vCell.y * vWorldSize.x + vCell.x] == '#')
-					{
-						// ...it is! So work out nearest point to future player position, around perimeter
-						// of cell rectangle. We can test the distance to this point to see if we have
-						// collided.
+		// 	// Draw Velocity
+		// 	if (object.second.vVel.mag2() > 0)
+		// 		tv.DrawLine(object.second.vPos, object.second.vPos + object.second.vVel.norm() * object.second.fRadius, olc::MAGENTA);
 
-						olc::vf2d vNearestPoint;
-						// Inspired by this (very clever btw) 
-						// https://stackoverflow.com/questions/45370692/circle-rectangle-collision-response
-						vNearestPoint.x = std::max(float(vCell.x), std::min(vPotentialPosition.x, float(vCell.x + 1)));
-						vNearestPoint.y = std::max(float(vCell.y), std::min(vPotentialPosition.y, float(vCell.y + 1)));
+		// 	// Draw Name
+		// 	olc::vi2d vNameSize = GetTextSizeProp("ID: " + std::to_string(object.first));
+		// 	tv.DrawStringPropDecal(object.second.vPos - olc::vf2d{ vNameSize.x * 0.5f * 0.25f * 0.125f, -object.second.fRadius * 1.25f }, "ID: " + std::to_string(object.first), olc::BLUE, { 0.25f, 0.25f });
+		// }
 
-						// But modified to work :P
-						olc::vf2d vRayToNearest = vNearestPoint - vPotentialPosition;
-						float fOverlap = object.second.fRadius - vRayToNearest.mag();
-						if (std::isnan(fOverlap)) fOverlap = 0;// Thanks Dandistine!
-
-						// If overlap is positive, then a collision has occurred, so we displace backwards by the 
-						// overlap amount. The potential position is then tested against other tiles in the area
-						// therefore "statically" resolving the collision
-						if (fOverlap > 0)
-						{
-							// Statically resolve the collision
-							vPotentialPosition = vPotentialPosition - vRayToNearest.norm() * fOverlap;
-						}
-					}
-				}
-			}
-
-			// Set the objects new position to the allowed potential position
-			object.second.vPos = vPotentialPosition;
-		}
-
-
-
-
-
-
-		// Handle Pan & Zoom
-		if (GetMouse(2).bPressed) tv.StartPan(GetMousePos());
-		if (GetMouse(2).bHeld) tv.UpdatePan(GetMousePos());
-		if (GetMouse(2).bReleased) tv.EndPan(GetMousePos());
-		if (GetMouseWheel() > 0) tv.ZoomAtScreenPos(1.5f, GetMousePos());
-		if (GetMouseWheel() < 0) tv.ZoomAtScreenPos(0.75f, GetMousePos());
-
-		// Clear World
-		Clear(olc::BLACK);
-
-		// Draw World
-		olc::vi2d vTL = tv.GetTopLeftTile().max({ 0,0 });
-		olc::vi2d vBR = tv.GetBottomRightTile().min(vWorldSize);
-		olc::vi2d vTile;
-		for (vTile.y = vTL.y; vTile.y < vBR.y; vTile.y++)
-			for (vTile.x = vTL.x; vTile.x < vBR.x; vTile.x++)
-			{
-				if (sWorldMap[vTile.y * vWorldSize.x + vTile.x] == '#')
-				{
-					tv.DrawRect(vTile, { 1.0f, 1.0f });
-					tv.DrawRect(olc::vf2d(vTile) + olc::vf2d(0.1f, 0.1f), { 0.8f, 0.8f });
-				}
-			}
-
-		// Draw World Objects
-		for (auto& object : mapObjects)
-		{
-			// Draw Boundary
-			tv.DrawCircle(object.second.vPos, object.second.fRadius);
-
-			// Draw Velocity
-			if (object.second.vVel.mag2() > 0)
-				tv.DrawLine(object.second.vPos, object.second.vPos + object.second.vVel.norm() * object.second.fRadius, olc::MAGENTA);
-
-			// Draw Name
-			olc::vi2d vNameSize = GetTextSizeProp("ID: " + std::to_string(object.first));
-			tv.DrawStringPropDecal(object.second.vPos - olc::vf2d{ vNameSize.x * 0.5f * 0.25f * 0.125f, -object.second.fRadius * 1.25f }, "ID: " + std::to_string(object.first), olc::BLUE, { 0.25f, 0.25f });
-		}
-
+		std::cout << "vertice: " << mapObjects[nPlayerID].vertice << std::endl;
+		
 		// Send player description
 		olc::net::message<GameMsg> msg;
 		msg.header.id = GameMsg::Game_UpdatePlayer;
 		msg << mapObjects[nPlayerID];
+
 		Send(msg);
 		return true;
 	}

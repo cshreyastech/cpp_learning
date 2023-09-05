@@ -14,7 +14,12 @@
         "-I${workspaceRoot}/03-olcPGEX/MMO_Server/include",
         "-I${workspaceRoot}/04-ROS_ML/ROS_ML_Server/include",
         "-o",
-        "${fileDirname}/build/${fileBasenameNoExtension}"
+        "${fileDirname}/build/${fileBasenameNoExtension}",
+        "-lglfw",
+        "-lGLU",
+        "-lGL",
+        "-lGLEW",
+        "-lpthread"
       ],
       "options": {
         "cwd": "${fileDirname}"

@@ -72,11 +72,14 @@ protected:
 			sPlayerDescription desc;
 			msg >> desc;
 			desc.nUniqueID = client->GetID();
+			desc.n_points = 2;
 			m_mapPlayerRoster.insert_or_assign(desc.nUniqueID, desc);
 
 			olc::net::message<GameMsg> msgSendID;
 			msgSendID.header.id = GameMsg::Client_AssignID;
+
 			msgSendID << desc.nUniqueID;
+			msgSendID << desc.n_points;
 			MessageClient(client, msgSendID);
 
 			olc::net::message<GameMsg> msgAddPlayer;
@@ -103,7 +106,14 @@ protected:
 		case GameMsg::Game_UpdatePlayer:
 		{
 			// Simply bounce update to everyone except incoming client
-			MessageAllClients(msg, client);
+			// MessageAllClients(msg, client);
+			
+			sPlayerDescription desc;
+			msg >> desc;
+			desc.vertice = 5.0231f;
+			msg << desc;
+			MessageAllClients(msg);
+
 			break;
 		}
 
