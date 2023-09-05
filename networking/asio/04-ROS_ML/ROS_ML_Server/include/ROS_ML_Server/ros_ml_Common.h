@@ -40,7 +40,7 @@ struct sPlayerDescription
 
 	uint32_t n_points = 0;
 
-	// float vertices[2 * 6];
 	float vertice;
+	float vertices[2 * 6];
 	float data_from_ml = 0.0f;
 };

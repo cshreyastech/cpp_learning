@@ -111,6 +111,21 @@ protected:
 			sPlayerDescription desc;
 			msg >> desc;
 			desc.vertice = 5.0231f;
+
+			desc.vertices[0] =  0.024249f;
+			desc.vertices[1] =  0.034523f;
+			desc.vertices[2] =  -0.085764f;
+			desc.vertices[3] =  1.000000f;
+			desc.vertices[4] =  0.141176f;
+			desc.vertices[5] =  0.031373f;
+
+			desc.vertices[6] =  0.024413f;
+			desc.vertices[7] =  0.034542f;
+			desc.vertices[8] =  -0.085810f;
+			desc.vertices[9] =  1.000000f;
+			desc.vertices[10] =  0.133333f;
+			desc.vertices[11] =  0.031373f;
+
 			msg << desc;
 			MessageAllClients(msg);
 
