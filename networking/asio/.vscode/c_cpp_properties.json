@@ -4,10 +4,13 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/external",
                 "${workspaceFolder}/external/asio-1.28.1/include",
                 "${workspaceFolder}/02-MMO/NetClient/include",
                 "${workspaceFolder}/03-olcPGEX/MMO_Server/include",
                 "${workspaceFolder}/04-ROS_ML/ROS_ML_Server/include",
+                "${workspaceFolder}/05-ros_ml/ros_ml_server/include",
+                "${workspaceFolder}/05-ros_ml/ros_ml_client/include"
             ],
             "defines": [],
             "compilerPath": "/usr/lib/ccache/g++-9",
