@@ -16,13 +16,15 @@ public:
 private:
 	std::unordered_map<uint32_t, sPlayerDescription> mapObjects;
 	uint32_t nPlayerID = 0;
+	bool bWaitingForConnection{true};
 	sPlayerDescription descPlayer;
-
-	bool bWaitingForConnection = true;
 
 public:
 	bool OnUserCreate() override;
   bool OnUserUpdate(float fElapsedTime);
+
+private:
+	void Deserialize(const char* data, float vertices[], const int vertices_length);
 };
 
 #endif

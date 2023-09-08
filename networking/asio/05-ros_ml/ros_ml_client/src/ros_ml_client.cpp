@@ -82,9 +82,21 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 				case(GameMsg::Game_UpdatePlayer):
 				{
-					sPlayerDescription desc;
-					msg >> desc;
-					mapObjects.insert_or_assign(desc.nUniqueID, desc);
+					// sPlayerDescription desc;
+					// msg >> desc;
+					// mapObjects.insert_or_assign(desc.nUniqueID, desc);
+
+
+					sPlayerDescription *desc_from_client;
+					desc_from_client = 
+					(sPlayerDescription*)malloc(sizeof(sPlayerDescription));
+					msg >> desc_from_client;
+
+					// sPlayerDescription desc = *desc_from_client;
+					// // memcpy((sPlayerDescription)desc, desc_from_client, sizeof(sPlayerDescription));
+					// mapObjects.insert_or_assign(desc.nUniqueID, desc);
+					delete desc_from_client;
+
 					break;
 				}
 			}
@@ -95,10 +107,41 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 	{
 		return true;
 	}
+	// Get the snappy compressed cloud from server
+	// Uncompress it and publish render it in ML
+	size_t p_vertices_compressed_length = mapObjects[nPlayerID].p_vertices_compressed_length;
+	std::cout << "p_vertices_compressed_length: " << p_vertices_compressed_length << std::endl;
+	// char* p_vertices_compressed = 
+	// 				new char[p_vertices_compressed_length];
+	// memcpy(p_vertices_compressed, mapObjects[nPlayerID].p_vertices_compressed, 
+	// 				p_vertices_compressed_length);
+
+	// const int n_points = 2;
+  // const int vertices_length = n_points * 6;
+  // const int vertices_size = vertices_length * sizeof(float);
+
+	// char* p_vertices = new char[vertices_size];
+	// bool raw_uncompress = 
+	// 	snappy::RawUncompress(p_vertices_compressed, p_vertices_compressed_length,
+  //                      p_vertices);
+	// // std::cout << "raw_uncompress: " << raw_uncompress << std::endl;
+
+	// float* vertices = new float[vertices_length];
+	// Deserialize(p_vertices, vertices, vertices_length);
+
+	// std::cout << "vertices[11] = 0.031373f: " << vertices[11] << std::endl;
+	// // PublishCloud(vertices);
+
+	// delete[] p_vertices_compressed;
+	// delete[] p_vertices;
+	// delete[] vertices;
+
+
+
+
+	// Get head and eye pose from ML and send it back to server
 	mapObjects[nPlayerID].data_from_ml = 1.001f;
 
-	// std::cout << "vertices[10] = 0.133333f: " << mapObjects[nPlayerID].vertices[10] << std::endl;
-	PublishCloud(mapObjects[nPlayerID].vertices);
 
 	// Send player description
 	olc::net::message<GameMsg> msg;
@@ -107,6 +150,15 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 	Send(msg);
 	return true;
+}
+
+void RosMLClient::Deserialize(const char* data, float vertices[], const int vertices_length)
+{
+  float *q = (float*)data;
+  for(int i = 0; i < vertices_length; i++)
+  {
+    vertices[i] = *q; q++;
+  }
 }
 
 int main()

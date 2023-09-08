@@ -49,6 +49,7 @@ set(target_common_libraries
   PRIVATE GLEW
   PRIVATE z
   PRIVATE png
+  PRIVATE snappy
   )
 
 # set(mmo_server_header_dir "${PROJECT_SOURCE_DIR}/03-olcPGEX/MMO_Server/include")
@@ -95,6 +96,10 @@ set(target_common_libraries
 
 # target_link_libraries(${ros_ml_client} ${target_common_libraries})
 ###################################################
+set(SNAPPY_BUILD_BENCHMARKS OFF CACHE BOOL "")
+set(SNAPPY_BUILD_TESTS OFF CACHE BOOL "")
+add_subdirectory(external/snappy)
+
 set(ros_ml_client_header_dir "${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_client/include")
 set(ros_ml_server_header_dir "${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_server/include")
 
@@ -105,9 +110,13 @@ add_executable(${ros_ml_server}
 target_include_directories(${ros_ml_server} 
   PRIVATE ${asio_header_dir}
   PRIVATE ${ros_ml_server_header_dir}
+  PRIVATE ${external_dir}/snappy
 )
 
-target_link_libraries(${ros_ml_server} pthread)
+target_link_libraries(${ros_ml_server} 
+PRIVATE pthread
+PRIVATE snappy
+)
 
 
 set(ros_ml_client 05-ros_ml_client)
@@ -120,6 +129,7 @@ add_executable(${ros_ml_client}
 target_include_directories(${ros_ml_client} 
   PRIVATE ${asio_header_dir}
   PRIVATE ${external_dir}
+  PRIVATE ${external_dir}/snappy
   PRIVATE ${ros_ml_server_header_dir}
   PRIVATE ${ros_ml_client_header_dir}
 )

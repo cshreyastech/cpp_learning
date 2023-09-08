@@ -1,0 +1,4 @@
+[submodule "networking/asio/external/snappy"]
+	path = networking/asio/external/snappy
+	url = https://github.com/google/snappy.git
+	branch = main

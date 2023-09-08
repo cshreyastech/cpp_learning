@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include "snappy-internal.h"
+#include "snappy-sinksource.h"
+#include "snappy.h"
 
 enum class GameMsg : uint32_t
 {
@@ -20,18 +23,9 @@ enum class GameMsg : uint32_t
 struct sPlayerDescription
 {
 	uint32_t nUniqueID = 0;
-	uint32_t nAvatarID = 0;
-
-	uint32_t nHealth = 100;
-	uint32_t nAmmo = 20;
-	uint32_t nKills = 0;
-	uint32_t nDeaths = 0;
-
-	float fRadius = 0.5f;
-
 	uint32_t n_points = 0;
 
-	float vertice;
-	float vertices[2 * 6];
 	float data_from_ml = 0.0f;
+	size_t p_vertices_compressed_length = 0; 
+	// char p_vertices_compressed[]; // Flexible array member
 };
