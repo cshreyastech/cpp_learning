@@ -193,7 +193,8 @@ protected:
 				// memcpy(&desc_to_client_stack, desc_to_client, sizeof(sPlayerDescription));
 
 				// msg << desc_to_client_stack;
-				msg << &desc_to_client;
+				desc_from_client.p_vertices_compressed_length = 100;
+				msg << desc_from_client;
 				MessageAllClients(msg);
 
 				// delete[] p_vertices;

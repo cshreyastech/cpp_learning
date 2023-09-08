@@ -143,8 +143,12 @@ namespace olc
 				// Check that the type of the data being pushed is trivially copyable
 				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pulled from vector");
 
-				// Cache the location towards the end of the vector where the pulled data starts
+				// // Cache the location towards the end of the vector where the pulled data starts
 				size_t i = msg.body.size() - sizeof(DataType);
+				// std::cout << "operator >> msg.body.size() " << msg.body.size() << std::endl;
+				// std::cout << "operator >> sizeof(DataType) " << sizeof(DataType) << std::endl;
+				// std::cout << "operator >> i " << i << std::endl;
+				
 
 				// Physically copy the data from the vector into the user variable
 				std::memcpy(&data, msg.body.data() + i, sizeof(DataType));
@@ -153,7 +157,36 @@ namespace olc
 				msg.body.resize(i);
 
 				// Recalculate the message size
+				// std::cout << "operator >> msg.size() " << msg.size() << std::endl;
 				msg.header.size = msg.size();
+				// std::cout << "-------------------\n";
+				// Return the target message so it can be "chained"
+				return msg;
+			}
+
+				template<typename DataType>
+			friend message<T>& ReadMessage(message<T>& msg, DataType& data)
+			{
+				// Check that the type of the data being pushed is trivially copyable
+				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pulled from vector");
+
+				// Cache the location towards the end of the vector where the pulled data starts
+				size_t i = 0; //msg.body.size() - sizeof(DataType);
+				std::cout << "operator >> msg.body.size() " << msg.body.size() << std::endl;
+				std::cout << "operator >> sizeof(DataType) " << sizeof(DataType) << std::endl;
+				std::cout << "operator >> i " << i << std::endl;
+				std::cout << "-------------------\n";
+				
+				// Physically copy the data from the vector into the user variable
+				// std::memcpy(&data, msg.body.data() + i, sizeof(DataType));
+				std::memcpy(&data, msg.body.data(), 24);
+
+				// Shrink the vector to remove read bytes, and reset end position
+				msg.body.resize(i);
+
+				// Recalculate the message size
+				// msg.header.size = msg.size();
+				msg.header.size = 0;
 
 				// Return the target message so it can be "chained"
 				return msg;
