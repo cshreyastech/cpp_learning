@@ -82,21 +82,20 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 				case(GameMsg::Game_UpdatePlayer):
 				{
-					// sPlayerDescription desc;
-					// msg >> desc;
-					// mapObjects.insert_or_assign(desc.nUniqueID, desc);
+					// sPlayerDescription *desc_from_server = new sPlayerDescription();
+					// desc_from_server = 
+					// (sPlayerDescription*)malloc(sizeof(sPlayerDescription));
+					// ReadMessage(msg, *desc_from_server);
+					// mapObjects.insert_or_assign(desc_from_server->nUniqueID, *desc_from_server);
+
+					// delete desc_from_server;
 
 
-					sPlayerDescription *desc_from_server = new sPlayerDescription();
-					desc_from_server = 
-					(sPlayerDescription*)malloc(sizeof(sPlayerDescription));
-					// msg >> desc_from_server;
-					ReadMessage(msg, *desc_from_server);
-					// sPlayerDescription desc = *desc_from_client;
-					// // memcpy((sPlayerDescription)desc, desc_from_client, sizeof(sPlayerDescription));
-					mapObjects.insert_or_assign(desc_from_server->nUniqueID, *desc_from_server);
 
-					delete desc_from_server;
+					sPlayerDescription desc;
+					msg >> desc;
+					// ReadMessage(msg, desc);
+					mapObjects.insert_or_assign(desc.nUniqueID, desc);
 
 					break;
 				}

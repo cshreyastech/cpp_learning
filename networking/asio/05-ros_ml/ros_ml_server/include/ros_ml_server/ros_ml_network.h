@@ -68,6 +68,7 @@
 #include <asio.hpp>
 #include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
+#include <stdio.h>
 
 namespace olc
 {
@@ -164,7 +165,47 @@ namespace olc
 				return msg;
 			}
 
-				template<typename DataType>
+			template<typename DataType>
+			friend bool operator == (const message<T>& msg1, const message<T>& msg2)
+			{
+				return msg1 == msg2;
+			}
+
+			template<typename DataType>
+			friend message<T>& WriteMessage (message<T>& msg, const DataType& data)
+			{
+				// Check that the type of the data being pushed is trivially copyable
+				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pushed into vector");
+
+				// Cache current size of vector, as this will be the point we insert the data
+				// size_t i = msg.body.size();
+				size_t i = 0;
+
+				printf("i: %ld, sizeof(DataType): %ld, msg.size(): %ld\n", 
+					i, sizeof(DataType), msg.size());
+
+				// Resize the vector by the size of the data being pushed
+				// msg.body.resize(msg.body.size() + sizeof(DataType));
+				msg.body.resize(msg.body.size() + 24);
+				printf("msg.body.size(): %ld\n", msg.body.size());
+
+				// Physically copy the data into the newly allocated vector space
+				// std::memcpy(msg.body.data() + i, &data, sizeof(DataType));
+				std::memcpy(msg.body.data() + i, &data, 24);
+
+				// Recalculate the message size
+				// msg.header.size = msg.size();
+				msg.header.size = 24;
+				printf("msg.body.size(): %ld, msg.header.size: %d\n", 
+					msg.body.size(), msg.header.size);
+
+				printf("-------------\n");
+				// Return the target message so it can be "chained"
+				return msg;
+			}
+
+
+			template<typename DataType>
 			friend message<T>& ReadMessage(message<T>& msg, DataType& data)
 			{
 				// Check that the type of the data being pushed is trivially copyable
@@ -172,10 +213,10 @@ namespace olc
 
 				// Cache the location towards the end of the vector where the pulled data starts
 				size_t i = 0; //msg.body.size() - sizeof(DataType);
-				std::cout << "operator >> msg.body.size() " << msg.body.size() << std::endl;
-				std::cout << "operator >> sizeof(DataType) " << sizeof(DataType) << std::endl;
-				std::cout << "operator >> i " << i << std::endl;
-				std::cout << "-------------------\n";
+				// std::cout << "operator >> msg.body.size() " << msg.body.size() << std::endl;
+				// std::cout << "operator >> sizeof(DataType) " << sizeof(DataType) << std::endl;
+				// std::cout << "operator >> i " << i << std::endl;
+				// std::cout << "-------------------\n";
 				
 				// Physically copy the data from the vector into the user variable
 				// std::memcpy(&data, msg.body.data() + i, sizeof(DataType));
@@ -469,6 +510,7 @@ namespace olc
 						// an error would be available...
 						if (!ec)
 						{
+							std::cout << "WriteHeader()- length: " << length << std::endl;
 							// ... no error, so check if the message header just sent also
 							// has a message body...
 							if (m_qMessagesOut.front().body.size() > 0)
@@ -513,6 +555,7 @@ namespace olc
 					{
 						if (!ec)
 						{
+							std::cout << "WriteBody()- length: " << length << std::endl;
 							// Sending was successful, so we are done with the message
 							// and remove it from the queue
 							m_qMessagesOut.pop_front();
@@ -966,6 +1009,49 @@ namespace olc
 					{
 						// ..it is!
 						if (client != pIgnoreClient)
+							client->Send(msg);
+					}
+					else
+					{
+						// The client couldnt be contacted, so assume it has
+						// disconnected.
+						OnClientDisconnect(client);
+						client.reset();
+
+						// Set this flag to then remove dead clients from container
+						bInvalidClientExists = true;
+					}
+				}
+
+				// Remove dead clients, all in one go - this way, we dont invalidate the
+				// container as we iterated through it.
+				if (bInvalidClientExists)
+					m_deqConnections.erase(
+						std::remove(m_deqConnections.begin(), m_deqConnections.end(), nullptr), m_deqConnections.end());
+			}
+
+			// Send message to all clients
+			void MessageAllClientsV2(message<T>& msg, std::shared_ptr<connection<T>> pIgnoreClient = nullptr)
+			{
+				bool bInvalidClientExists = false;
+
+				// Iterate through all clients in container
+				for (auto& client : m_deqConnections)
+				{
+					// Check client is connected...
+					if (client && client->IsConnected())
+					{
+						// ..it is!
+						if (client != pIgnoreClient)
+							// For debugging
+							// {
+							// 	client->Send(msg);
+							// 	sPlayerDescription desc_validate;
+							// 	msg >> desc_validate;
+							// 	std::cout << "MessageAllClientsV2 - desc_validate.p_vertices_compressed_length: " 
+							// 						<< desc_validate.p_vertices_compressed_length
+							// 						<< std::endl;
+							// }
 							client->Send(msg);
 					}
 					else

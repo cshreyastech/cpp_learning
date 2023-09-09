@@ -139,10 +139,10 @@ protected:
 					p_vertices_compressed, &p_vertices_compressed_length);
 				*/
 
-
-				sPlayerDescription *desc_to_client;
+				sPlayerDescription *desc_to_client = new sPlayerDescription();
 				desc_to_client = 
 					(sPlayerDescription*)malloc(sizeof(sPlayerDescription));
+
 				// std::cout << "sizeof(uint32_t): " << sizeof(uint32_t) << std::endl;
 				// std::cout << "sizeof(float): " << sizeof(float) << std::endl;
 				// std::cout << "sizeof(size_t): " << sizeof(size_t) << std::endl;
@@ -155,7 +155,8 @@ protected:
 				// desc = 
 				// 	(sPlayerDescription*)malloc(sizeof(sPlayerDescription));
 				// desc->p_vertices_compressed_length = p_vertices_compressed_length;
-				desc_to_client->p_vertices_compressed_length = 100;
+				desc_to_client->nUniqueID = desc_from_client.nUniqueID;
+				desc_to_client->p_vertices_compressed_length = 110;
 				// desc_to_client->n_points = 10;
 				// desc.p_vertices_compressed_length = 100;
 				// strcpy(desc->p_vertices_compressed, p_vertices_compressed);
@@ -187,16 +188,35 @@ protected:
 				////////////////
 				*/
 
-				// sPlayerDescription desc2;
-				// desc2.p_vertices_compressed_length = 100;
-				// sPlayerDescription desc_to_client_stack;
-				// memcpy(&desc_to_client_stack, desc_to_client, sizeof(sPlayerDescription));
+				desc_from_client.p_vertices_compressed_length = 110;
+				sPlayerDescription desc_validate;
 
-				// msg << desc_to_client_stack;
-				desc_from_client.p_vertices_compressed_length = 100;
-				msg << desc_from_client;
-				MessageAllClients(msg);
+				// WriteMessage(msg, desc_from_client);
+				
+				
+				WriteMessage(msg, *desc_to_client);
+				printf("ros_ml_server - msg.header.size: %d, msg.size(): %ld\n", msg.header.size, msg.size());
+				// msg >> desc_validate;
+				// std::cout << "ros_ml_server-desc_validate: " 
+				// 	<< desc_validate.p_vertices_compressed_length << std::endl;
 
+
+				/*
+				// Check objects
+				sPlayerDescription *desc_ptr = new sPlayerDescription();
+				desc_ptr = 
+					(sPlayerDescription*)malloc(sizeof(sPlayerDescription));
+
+				delete desc_ptr;
+				olc::net::message<GameMsg> msg1;
+				olc::net::message<GameMsg> msg2;
+				/////// End of Check objects ///////////
+				*/
+
+				std::cout << "Before MessageAllClientsV2\n";
+				// MessageAllClients(msg);
+				MessageAllClientsV2(msg);
+				std::cout << "-------After MessageAllClientsV2--------\n";
 				// delete[] p_vertices;
 				// delete[] p_vertices_compressed;
 				delete desc_to_client;
