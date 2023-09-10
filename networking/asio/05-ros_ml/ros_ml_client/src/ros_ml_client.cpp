@@ -88,7 +88,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					sPlayerDescription *desc_from_server = new sPlayerDescription();
 					desc_from_server = 
 					(sPlayerDescription*)malloc(sizeof(sPlayerDescription) + 5);
-					ReadMessage(msg, *desc_from_server);
+					ReadMessage(msg, *desc_from_server, 24 + 5);
 					mapObjects.insert_or_assign(desc_from_server->nUniqueID, *desc_from_server);
 
 					{

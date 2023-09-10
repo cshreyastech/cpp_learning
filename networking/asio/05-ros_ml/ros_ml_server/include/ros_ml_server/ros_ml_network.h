@@ -172,30 +172,32 @@ namespace olc
 			}
 
 			template<typename DataType>
-			friend message<T>& WriteMessage (message<T>& msg, const DataType& data)
+			friend message<T>& WriteMessage (message<T>& msg, const DataType& data, const size_t data_size)
 			{
 				// Check that the type of the data being pushed is trivially copyable
 				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pushed into vector");
 
 				// Cache current size of vector, as this will be the point we insert the data
-				// size_t i = msg.body.size();
-				size_t i = 0;
+				size_t i = msg.body.size();
+				// size_t i = 0;
 
 				printf("i: %ld, sizeof(DataType): %ld, msg.size(): %ld\n", 
 					i, sizeof(DataType), msg.size());
 
 				// Resize the vector by the size of the data being pushed
 				// msg.body.resize(msg.body.size() + sizeof(DataType));
-				msg.body.resize(msg.body.size() + 24 + 5);
+				// msg.body.resize(msg.body.size() + 24 + 5);
+				msg.body.resize(msg.body.size() + data_size);
 				printf("msg.body.size(): %ld\n", msg.body.size());
 
 				// Physically copy the data into the newly allocated vector space
 				// std::memcpy(msg.body.data() + i, &data, sizeof(DataType));
-				std::memcpy(msg.body.data() + i, &data, 24 + 5);
+				// std::memcpy(msg.body.data() + i, &data, 24 + 5);
+				std::memcpy(msg.body.data() + i, &data, data_size);
 
 				// Recalculate the message size
-				// msg.header.size = msg.size();
-				msg.header.size = 24 + 5;
+				msg.header.size = msg.size();
+				// msg.header.size = 24 + 5;
 				printf("msg.body.size(): %ld, msg.header.size: %d\n", 
 					msg.body.size(), msg.header.size);
 
@@ -206,13 +208,17 @@ namespace olc
 
 
 			template<typename DataType>
-			friend message<T>& ReadMessage(message<T>& msg, DataType& data)
+			friend message<T>& ReadMessage(message<T>& msg, DataType& data, const size_t data_size)
 			{
 				// Check that the type of the data being pushed is trivially copyable
 				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pulled from vector");
 
 				// Cache the location towards the end of the vector where the pulled data starts
-				size_t i = 0; //msg.body.size() - sizeof(DataType);
+				// size_t i = 0; 
+				// size_t i = msg.body.size() - sizeof(DataType);
+				// size_t i = msg.body.size() - (24 + 5);
+				size_t i = msg.body.size() - data_size;
+
 				// std::cout << "operator >> msg.body.size() " << msg.body.size() << std::endl;
 				// std::cout << "operator >> sizeof(DataType) " << sizeof(DataType) << std::endl;
 				// std::cout << "operator >> i " << i << std::endl;
@@ -220,14 +226,15 @@ namespace olc
 				
 				// Physically copy the data from the vector into the user variable
 				// std::memcpy(&data, msg.body.data() + i, sizeof(DataType));
-				std::memcpy(&data, msg.body.data(), 24 + 5);
+				// std::memcpy(&data, msg.body.data() + i, 24 + 5);
+				std::memcpy(&data, msg.body.data() + i, data_size);
 
 				// Shrink the vector to remove read bytes, and reset end position
 				msg.body.resize(i);
 
 				// Recalculate the message size
-				// msg.header.size = msg.size();
-				msg.header.size = 0;
+				msg.header.size = msg.size();
+				// msg.header.size = 0;
 
 				// Return the target message so it can be "chained"
 				return msg;

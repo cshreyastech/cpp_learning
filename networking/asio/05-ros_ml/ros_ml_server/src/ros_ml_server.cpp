@@ -227,7 +227,7 @@ protected:
 				// WriteMessage(msg, desc_from_client);
 				
 				
-				WriteMessage(msg, *desc_to_client);
+				WriteMessage(msg, *desc_to_client, 24 + 5);
 				MessageAllClients(msg);
 
 				/////////////////Validate/////////////////
@@ -236,7 +236,7 @@ protected:
 					sPlayerDescription *desc_to_client_validate = new sPlayerDescription();
 					desc_to_client_validate = 
 						(sPlayerDescription*)malloc(sizeof(sPlayerDescription) + p_vertices_compressed_length);
-					ReadMessage(msg, *desc_to_client_validate);
+					ReadMessage(msg, *desc_to_client_validate, 24 + 5);
 
 					size_t p_vertices_compressed_length_validate = 
 						desc_to_client_validate->p_vertices_compressed_length;
