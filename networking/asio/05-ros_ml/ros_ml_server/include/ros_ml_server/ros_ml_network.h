@@ -186,16 +186,16 @@ namespace olc
 
 				// Resize the vector by the size of the data being pushed
 				// msg.body.resize(msg.body.size() + sizeof(DataType));
-				msg.body.resize(msg.body.size() + 24);
+				msg.body.resize(msg.body.size() + 24 + 5);
 				printf("msg.body.size(): %ld\n", msg.body.size());
 
 				// Physically copy the data into the newly allocated vector space
 				// std::memcpy(msg.body.data() + i, &data, sizeof(DataType));
-				std::memcpy(msg.body.data() + i, &data, 24);
+				std::memcpy(msg.body.data() + i, &data, 24 + 5);
 
 				// Recalculate the message size
 				// msg.header.size = msg.size();
-				msg.header.size = 24;
+				msg.header.size = 24 + 5;
 				printf("msg.body.size(): %ld, msg.header.size: %d\n", 
 					msg.body.size(), msg.header.size);
 
@@ -220,7 +220,7 @@ namespace olc
 				
 				// Physically copy the data from the vector into the user variable
 				// std::memcpy(&data, msg.body.data() + i, sizeof(DataType));
-				std::memcpy(&data, msg.body.data(), 24);
+				std::memcpy(&data, msg.body.data(), 24 + 5);
 
 				// Shrink the vector to remove read bytes, and reset end position
 				msg.body.resize(i);
@@ -510,7 +510,6 @@ namespace olc
 						// an error would be available...
 						if (!ec)
 						{
-							std::cout << "WriteHeader()- length: " << length << std::endl;
 							// ... no error, so check if the message header just sent also
 							// has a message body...
 							if (m_qMessagesOut.front().body.size() > 0)
@@ -538,7 +537,6 @@ namespace olc
 							// for now simply assume the connection has died by closing the
 							// socket. When a future attempt to write to this client fails due
 							// to the closed socket, it will be tidied up.
-							std::cout << "[" << id << "] Write Header Fail.\n";
 							m_socket.close();
 						}
 					});
@@ -555,7 +553,6 @@ namespace olc
 					{
 						if (!ec)
 						{
-							std::cout << "WriteBody()- length: " << length << std::endl;
 							// Sending was successful, so we are done with the message
 							// and remove it from the queue
 							m_qMessagesOut.pop_front();
@@ -937,8 +934,6 @@ namespace olc
 								std::make_shared<connection<T>>(connection<T>::owner::server,
 									m_asioContext, std::move(socket), m_qMessagesIn);
 
-
-
 							// Give the user server a chance to deny connection
 							if (OnClientConnect(newconn))
 							{
@@ -1009,49 +1004,6 @@ namespace olc
 					{
 						// ..it is!
 						if (client != pIgnoreClient)
-							client->Send(msg);
-					}
-					else
-					{
-						// The client couldnt be contacted, so assume it has
-						// disconnected.
-						OnClientDisconnect(client);
-						client.reset();
-
-						// Set this flag to then remove dead clients from container
-						bInvalidClientExists = true;
-					}
-				}
-
-				// Remove dead clients, all in one go - this way, we dont invalidate the
-				// container as we iterated through it.
-				if (bInvalidClientExists)
-					m_deqConnections.erase(
-						std::remove(m_deqConnections.begin(), m_deqConnections.end(), nullptr), m_deqConnections.end());
-			}
-
-			// Send message to all clients
-			void MessageAllClientsV2(message<T>& msg, std::shared_ptr<connection<T>> pIgnoreClient = nullptr)
-			{
-				bool bInvalidClientExists = false;
-
-				// Iterate through all clients in container
-				for (auto& client : m_deqConnections)
-				{
-					// Check client is connected...
-					if (client && client->IsConnected())
-					{
-						// ..it is!
-						if (client != pIgnoreClient)
-							// For debugging
-							// {
-							// 	client->Send(msg);
-							// 	sPlayerDescription desc_validate;
-							// 	msg >> desc_validate;
-							// 	std::cout << "MessageAllClientsV2 - desc_validate.p_vertices_compressed_length: " 
-							// 						<< desc_validate.p_vertices_compressed_length
-							// 						<< std::endl;
-							// }
 							client->Send(msg);
 					}
 					else

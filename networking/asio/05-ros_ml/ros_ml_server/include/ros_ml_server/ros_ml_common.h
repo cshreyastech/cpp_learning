@@ -27,5 +27,15 @@ struct sPlayerDescription
 
 	float data_from_ml = 0.0f;
 	size_t p_vertices_compressed_length = 0; 
-	// char p_vertices_compressed[]; // Flexible array member
+	char p_vertices_compressed[]; // Flexible array member
+};
+
+struct sPlayerDescriptionPtr
+{
+	uint32_t nUniqueID = 0;
+	// uint32_t n_points = 0;
+
+	// float data_from_ml = 0.0f;
+	// size_t p_vertices_compressed_length = 0; 
+	char** p_vertices_compressed_ptr; // Flexible array member
 };

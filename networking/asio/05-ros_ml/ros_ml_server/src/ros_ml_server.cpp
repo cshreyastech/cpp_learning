@@ -139,9 +139,6 @@ protected:
 					p_vertices_compressed, &p_vertices_compressed_length);
 				*/
 
-				sPlayerDescription *desc_to_client = new sPlayerDescription();
-				desc_to_client = 
-					(sPlayerDescription*)malloc(sizeof(sPlayerDescription));
 
 				// std::cout << "sizeof(uint32_t): " << sizeof(uint32_t) << std::endl;
 				// std::cout << "sizeof(float): " << sizeof(float) << std::endl;
@@ -155,8 +152,44 @@ protected:
 				// desc = 
 				// 	(sPlayerDescription*)malloc(sizeof(sPlayerDescription));
 				// desc->p_vertices_compressed_length = p_vertices_compressed_length;
+				char p_vertices_compressed[]  = { 'a', 'b', 'c', 'd', 'e' };
+				size_t p_vertices_compressed_length = sizeof(p_vertices_compressed);
+				sPlayerDescription *desc_to_client = new sPlayerDescription();
+				desc_to_client = 
+					(sPlayerDescription*)malloc(sizeof(sPlayerDescription) + p_vertices_compressed_length);
+
+				desc_to_client->p_vertices_compressed_length = p_vertices_compressed_length;
 				desc_to_client->nUniqueID = desc_from_client.nUniqueID;
-				desc_to_client->p_vertices_compressed_length = 110;
+				memcpy(&desc_to_client->p_vertices_compressed, 
+					p_vertices_compressed, p_vertices_compressed_length);
+
+				///////////////////////////Validate/////////////////////
+				{
+					size_t p_vertices_compressed_length_check;
+					p_vertices_compressed_length_check = desc_to_client->p_vertices_compressed_length;
+					char p_vertices_compressed_check[p_vertices_compressed_length_check];
+					// strcpy(p_vertices_compressed_check, desc_to_client->p_vertices_compressed);
+					memcpy(&p_vertices_compressed_check, desc_to_client->p_vertices_compressed,
+						desc_to_client->p_vertices_compressed_length);
+					std::string p_vertices_compressed_str_check(p_vertices_compressed_check);
+
+					std::cout << "p_vertices_compressed_length_check: " 
+						<< p_vertices_compressed_length_check 
+						<< ", p_vertices_compressed_str_check: "
+						<< p_vertices_compressed_str_check
+						<< std::endl;
+
+
+					for(int i = 0; i < p_vertices_compressed_length_check; i++)
+					{
+						std::cout << "i: " << i << ", p_vertices_compressed_check: " 
+							<< p_vertices_compressed_check[i] << std::endl;
+					}
+					std::cout << std::endl;
+				}
+				//////////////end of validate////////////////////
+
+				// desc_to_client->p_vertices_compressed = {0, 1, 2};
 				// desc_to_client->n_points = 10;
 				// desc.p_vertices_compressed_length = 100;
 				// strcpy(desc->p_vertices_compressed, p_vertices_compressed);
@@ -188,35 +221,48 @@ protected:
 				////////////////
 				*/
 
-				desc_from_client.p_vertices_compressed_length = 110;
-				sPlayerDescription desc_validate;
+				// desc_from_client.p_vertices_compressed_length = 110;
+				// sPlayerDescription desc_validate;
 
 				// WriteMessage(msg, desc_from_client);
 				
 				
 				WriteMessage(msg, *desc_to_client);
-				printf("ros_ml_server - msg.header.size: %d, msg.size(): %ld\n", msg.header.size, msg.size());
-				// msg >> desc_validate;
-				// std::cout << "ros_ml_server-desc_validate: " 
-				// 	<< desc_validate.p_vertices_compressed_length << std::endl;
+				MessageAllClients(msg);
 
+				/////////////////Validate/////////////////
+				{
+					printf("ros_ml_server - msg.header.size: %d, msg.size(): %ld\n", msg.header.size, msg.size());
+					sPlayerDescription *desc_to_client_validate = new sPlayerDescription();
+					desc_to_client_validate = 
+						(sPlayerDescription*)malloc(sizeof(sPlayerDescription) + p_vertices_compressed_length);
+					ReadMessage(msg, *desc_to_client_validate);
 
-				/*
-				// Check objects
-				sPlayerDescription *desc_ptr = new sPlayerDescription();
-				desc_ptr = 
-					(sPlayerDescription*)malloc(sizeof(sPlayerDescription));
+					size_t p_vertices_compressed_length_validate = 
+						desc_to_client_validate->p_vertices_compressed_length;
+					char p_vertices_compressed_validate[p_vertices_compressed_length_validate];
 
-				delete desc_ptr;
-				olc::net::message<GameMsg> msg1;
-				olc::net::message<GameMsg> msg2;
-				/////// End of Check objects ///////////
-				*/
+					memcpy(p_vertices_compressed_validate, &desc_to_client_validate->p_vertices_compressed, 
+						p_vertices_compressed_length_validate);
 
-				std::cout << "Before MessageAllClientsV2\n";
-				// MessageAllClients(msg);
-				MessageAllClientsV2(msg);
-				std::cout << "-------After MessageAllClientsV2--------\n";
+					std::string p_vertices_compressed_str_validate(p_vertices_compressed_str_validate);
+
+					std::cout << "p_vertices_compressed_length_validate: " 
+						<< p_vertices_compressed_length_validate 
+						<< ", p_vertices_compressed_str_validate: "
+						<< p_vertices_compressed_str_validate
+						<< std::endl;
+					
+					for(int i = 0; i < p_vertices_compressed_length_validate; i++)
+					{
+						std::cout << "i: " << i << ", p_vertices_compressed_validate: " 
+							<< p_vertices_compressed_validate[i] << std::endl;
+					}
+
+				}
+				/////////////////End of Validate/////////////////
+
+				// MessageAllClientsV2(msg);
 				// delete[] p_vertices;
 				// delete[] p_vertices_compressed;
 				delete desc_to_client;

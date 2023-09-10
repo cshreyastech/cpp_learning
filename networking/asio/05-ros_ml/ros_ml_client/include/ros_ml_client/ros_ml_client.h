@@ -12,6 +12,7 @@ class RosMLClient : public olc::GameEngine, olc::net::client_interface<GameMsg>
 {
 public:
 	RosMLClient();
+ ~RosMLClient();
 
 private:
 	std::unordered_map<uint32_t, sPlayerDescription> mapObjects;

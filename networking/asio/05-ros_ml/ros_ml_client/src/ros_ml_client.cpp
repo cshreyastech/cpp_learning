@@ -7,10 +7,13 @@ RosMLClient::RosMLClient() : olc::GameEngine() , olc::net::client_interface<Game
 	sAppName = "MMO Client";
 }
 
+RosMLClient::~RosMLClient()
+{
+
+}
+
 bool RosMLClient::OnUserCreate()
 {
-	std::cout << "Inside RosMLClient::OnUserCreate()\n";
-
 	mapObjects[0].nUniqueID = 0;
 	//mapObjects[0].vPos = { 3.0f, 3.0f };
 	mapObjects[0].n_points = 0;
@@ -21,7 +24,6 @@ bool RosMLClient::OnUserCreate()
 
 	return false;
 }
-
 
 bool RosMLClient::OnUserUpdate(float fElapsedTime)
 {
@@ -55,6 +57,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 					std::cout << "Assigned Client ID = " << nPlayerID << "\n";
 					std::cout << "n_points = " << n_points << "\n";
+					
 					break;
 				}
 
@@ -82,20 +85,37 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 				case(GameMsg::Game_UpdatePlayer):
 				{
-					// sPlayerDescription *desc_from_server = new sPlayerDescription();
-					// desc_from_server = 
-					// (sPlayerDescription*)malloc(sizeof(sPlayerDescription));
-					// ReadMessage(msg, *desc_from_server);
-					// mapObjects.insert_or_assign(desc_from_server->nUniqueID, *desc_from_server);
+					sPlayerDescription *desc_from_server = new sPlayerDescription();
+					desc_from_server = 
+					(sPlayerDescription*)malloc(sizeof(sPlayerDescription) + 5);
+					ReadMessage(msg, *desc_from_server);
+					mapObjects.insert_or_assign(desc_from_server->nUniqueID, *desc_from_server);
 
-					// delete desc_from_server;
+					{
+						size_t p_vertices_compressed_length_check;
+						p_vertices_compressed_length_check = desc_from_server->p_vertices_compressed_length;
+						char p_vertices_compressed_check[p_vertices_compressed_length_check];
+						
+						memcpy(&p_vertices_compressed_check, desc_from_server->p_vertices_compressed,
+							desc_from_server->p_vertices_compressed_length);
+						std::string p_vertices_compressed_str_check(p_vertices_compressed_check);
+
+						std::cout << "p_vertices_compressed_length_check: " 
+							<< p_vertices_compressed_length_check 
+							<< ", p_vertices_compressed_str_check: "
+							<< p_vertices_compressed_str_check
+							<< std::endl;
 
 
+						for(int i = 0; i < p_vertices_compressed_length_check; i++)
+						{
+							std::cout << "i: " << i << ", p_vertices_compressed_check: " 
+								<< p_vertices_compressed_check[i] << std::endl;
+						}
+						std::cout << std::endl;
+					}
 
-					sPlayerDescription desc;
-					msg >> desc;
-					// ReadMessage(msg, desc);
-					mapObjects.insert_or_assign(desc.nUniqueID, desc);
+					delete desc_from_server;
 
 					break;
 				}
@@ -109,8 +129,54 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 	}
 	// Get the snappy compressed cloud from server
 	// Uncompress it and publish render it in ML
-	size_t p_vertices_compressed_length = mapObjects[nPlayerID].p_vertices_compressed_length;
-	std::cout << "p_vertices_compressed_length: " << p_vertices_compressed_length << std::endl;
+	// size_t p_vertices_compressed_length = mapObjects[nPlayerID].p_vertices_compressed_length;
+	
+
+	// char *p_vertices_compressed = (char*)mapObjects[nPlayerID].p_vertices_compressed;
+	// std::cout << *p_vertices_ptr << std::endl; **p_vertices_ptr++;
+	// std::cout << *p_vertices_ptr << std::endl; **p_vertices_ptr++;
+	// std::cout << *p_vertices_compressed << std::endl; p_vertices_compressed++;
+	// std::cout << *p_vertices_compressed << std::endl; p_vertices_compressed++;
+	// std::cout << *p_vertices_compressed << std::endl;
+
+  // float *q = (float*)data;
+  // for(int i = 0; i < vertices_length; i++)
+  // {
+  //   vertices[i] = *q; q++;
+  // }
+
+	// char p_vertices_compressed[p_vertices_compressed_length];
+	// memcpy(&p_vertices_compressed, mapObjects[nPlayerID].p_vertices_compressed,
+	// 					p_vertices_compressed_length);
+
+	// std::string p_vertices_compressed_str(p_vertices_compressed);
+
+	// std::cout << "p_vertices_compressed_length: " 
+	// 	<< p_vertices_compressed_length 
+	// 	<< ", p_vertices_compressed_str: "
+	// 	<< p_vertices_compressed_str
+	// 	<< std::endl;
+
+
+	// for(int i = 0; i < p_vertices_compressed_length; i++)
+	// {
+	// 	std::cout << "i: " << i << ", p_vertices_compressed: " 
+	// 		<< p_vertices_compressed[i] << std::endl;
+	// }
+	// std::cout << std::endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
 	// char* p_vertices_compressed = 
 	// 				new char[p_vertices_compressed_length];
 	// memcpy(p_vertices_compressed, mapObjects[nPlayerID].p_vertices_compressed, 
