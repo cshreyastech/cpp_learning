@@ -89,7 +89,7 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			sPlayerDescription desc;
 			msg >> desc;
 			desc.nUniqueID = client->GetID();
-			desc.n_points = 2;
+			desc.n_points = n_points_;
 			m_mapPlayerRoster_.insert_or_assign(desc.nUniqueID, desc);
 
 			olc::net::message<GameMsg> msgSendID;
@@ -129,17 +129,6 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			msg >> desc_from_client;
 
 			
-			// const int n_points = 2;
-
-			// const int vertices_length = n_points * 6;
-			// const int vertices_size = vertices_length * sizeof(float);
-
-			// float vertices[vertices_length] = 
-			// {
-			// 	0.024249f, 0.034523f, -0.085764f, 1.000000f, 0.141176f, 0.031373f, 
-			// 	0.024413f, 0.034542f, -0.085810f, 1.000000f, 0.133333f, 0.031373f, 
-			// };
-
 			const char* p_vertices = (const char*)malloc(vertices_size_);
 			Serialize(p_vertices, vertices_, vertices_length_);
 
@@ -153,21 +142,17 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 				p_vertices_compressed, &p_vertices_compressed_length);
 			
 
-
-			// char p_vertices_compressed[]  = { 'a', 'b', 'c', 'd', 'e' };
-			// size_t p_vertices_compressed_length = sizeof(p_vertices_compressed);
-
 			const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
 			sPlayerDescription *desc_to_client = new sPlayerDescription();
 			desc_to_client = (sPlayerDescription*)malloc(data_size);
 
 			desc_to_client->p_vertices_compressed_length = p_vertices_compressed_length;
 			desc_to_client->nUniqueID = desc_from_client.nUniqueID;
+			desc_to_client->n_points = n_points_;
 			memcpy(&desc_to_client->p_vertices_compressed, 
 				p_vertices_compressed, p_vertices_compressed_length);
 			WriteMessage(msg, *desc_to_client, data_size);
 			MessageAllClients(msg);
-
 
 			delete[] p_vertices;
 			delete[] p_vertices_compressed;
@@ -200,8 +185,8 @@ void RosMLServer::Deserialize(const char* data, float vertices[], const int vert
 
 int main()
 {
-	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_test.txt";
-	const int n_points = 2;
+	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_0.txt";
+	const int n_points = 307200;
 	RosMLServer server(cloud_file_path, n_points, 60000);
 	server.Start();
 

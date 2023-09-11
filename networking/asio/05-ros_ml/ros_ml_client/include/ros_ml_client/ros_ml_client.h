@@ -7,6 +7,7 @@
 #include "ros_ml_client/game_engine.h"
 
 #include <unordered_map>
+#include <cassert>
 
 class RosMLClient : public olc::GameEngine, olc::net::client_interface<GameMsg>
 {

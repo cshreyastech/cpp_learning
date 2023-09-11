@@ -102,7 +102,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 					{
 										//// check tbd ////////////////	
-						const int n_points = 2;
+						const int n_points = desc_from_server->n_points;
   
   					const int vertices_length = n_points * 6;
   					const int vertices_size = vertices_length * sizeof(float);
@@ -128,7 +128,9 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 						
 						delete[] p_vertices_compressed;
 						delete[] p_vertices;
-						std::cout << "vertices[11] = 0.031373f: " << vertices[11] << std::endl;
+						
+						assert(vertices[vertices_length - 1] == 0.619608f);
+						delete[] vertices;
 						////////////////
 					}
 
