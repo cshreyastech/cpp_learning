@@ -9,7 +9,7 @@ RosMLClient::RosMLClient() : olc::GameEngine() , olc::net::client_interface<Game
 
 RosMLClient::~RosMLClient()
 {
-
+	delete[] vertices;
 }
 
 bool RosMLClient::OnUserCreate()
@@ -88,16 +88,45 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 				{
 					size_t* q = (size_t*)msg.body.data();
 					size_t p_vertices_compressed_length = *q;
-					// std::cout << "p_vertices_compressed_length from *q: " 
-					// 	<< p_vertices_compressed_length << std::endl;
 
 					const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
 					sPlayerDescription *desc_from_server = new sPlayerDescription();
 					desc_from_server = (sPlayerDescription*)malloc(data_size);
 
 					ReadMessage(msg, *desc_from_server, data_size);
+					
+					desc_from_server->cloud_set_for_client = true;
 					mapObjects_.insert_or_assign(desc_from_server->nUniqueID, *desc_from_server);
 	
+
+					
+					const int n_points = desc_from_server->n_points;
+					const int vertices_length = n_points * 6;
+					const int vertices_size = vertices_length * sizeof(float);
+
+					// size_t p_vertices_compressed_length = desc_from_server->p_vertices_compressed_length;
+
+					char* p_vertices_compressed = 
+						new char[p_vertices_compressed_length];
+					memcpy(p_vertices_compressed, desc_from_server->p_vertices_compressed, 
+						p_vertices_compressed_length);
+								
+					char* p_vertices = new char[vertices_size];
+					bool raw_uncompress = 
+						snappy::RawUncompress(p_vertices_compressed, p_vertices_compressed_length,
+															p_vertices);
+
+					vertices = new float[vertices_length];
+					Deserialize(p_vertices, vertices, vertices_length);
+					
+					delete[] p_vertices_compressed;
+
+					
+					// assert(vertices[vertices_length - 1] == 0.619608f);
+					
+				
+
+
 
 
 					// {
@@ -151,41 +180,54 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 	// size_t p_vertices_compressed_length = mapObjects_[nPlayerID_].p_vertices_compressed_length;
 	
 	// char *p_vertices_compressed = (char*)mapObjects_[nPlayerID_].p_vertices_compressed;
-	{
-						//// check tbd ////////////////	
-		const int n_points =  mapObjects_[nPlayerID_].n_points;
+	// std::cout << "static n_points_: " << RosMLClient::n_points_ << std::endl;
 
+	// {
+	// 					//// check tbd ////////////////	
+	// 	const int n_points =  mapObjects_[nPlayerID_].n_points;
+
+	// 	const int vertices_length = n_points * 6;
+	// 	const int vertices_size = vertices_length * sizeof(float);
+
+	// 	size_t p_vertices_compressed_length = mapObjects_[nPlayerID_].p_vertices_compressed_length;
+
+		
+	// 	// char* p_vertices_compressed = 
+	// 	// 	new char[p_vertices_compressed_length];
+	// 	// memcpy(p_vertices_compressed, desc_from_server->p_vertices_compressed, 
+	// 	// 	p_vertices_compressed_length);
+
+	// 	// std::cout << "p_vertices_compressed_length: " << p_vertices_compressed_length 
+	// 	// 	<< std::endl;
+					
+	// 	// char* p_vertices = new char[vertices_size];
+	// 	// bool raw_uncompress = 
+	// 	// 	snappy::RawUncompress(p_vertices_compressed, p_vertices_compressed_length,
+	// 	// 										p_vertices);
+	// 	// std::cout << "raw_uncompress: " << raw_uncompress << std::endl;
+
+	// 	// float* vertices = new float[vertices_length];
+	// 	// Deserialize(p_vertices, vertices, vertices_length);
+		
+	// 	// delete[] p_vertices_compressed;
+	// 	// delete[] p_vertices;
+		
+	// 	// assert(vertices[vertices_length - 1] == 0.031373f);
+	// 	// delete[] vertices;
+	// 	////////////////
+	// }
+
+	if(mapObjects_[nPlayerID_].cloud_set_for_client)
+	{
+		const int n_points =  mapObjects_[nPlayerID_].n_points;
 		const int vertices_length = n_points * 6;
 		const int vertices_size = vertices_length * sizeof(float);
 
-		size_t p_vertices_compressed_length = mapObjects_[nPlayerID_].p_vertices_compressed_length;
+		assert(vertices[vertices_length - 1] == 0.619608f);
+		// assert(vertices[11] == 0.031373f);
 
-		// char* p_vertices_compressed = 
-		// 	new char[p_vertices_compressed_length];
-		// memcpy(p_vertices_compressed, desc_from_server->p_vertices_compressed, 
-		// 	p_vertices_compressed_length);
-
-		// std::cout << "p_vertices_compressed_length: " << p_vertices_compressed_length 
-		// 	<< std::endl;
-					
-		// char* p_vertices = new char[vertices_size];
-		// bool raw_uncompress = 
-		// 	snappy::RawUncompress(p_vertices_compressed, p_vertices_compressed_length,
-		// 										p_vertices);
-		// std::cout << "raw_uncompress: " << raw_uncompress << std::endl;
-
-		// float* vertices = new float[vertices_length];
-		// Deserialize(p_vertices, vertices, vertices_length);
-		
-		// delete[] p_vertices_compressed;
-		// delete[] p_vertices;
-		
-		// assert(vertices[vertices_length - 1] == 0.031373f);
-		// delete[] vertices;
-		////////////////
 	}
-
-
+	
 
 	// Get head and eye pose from ML and send it back to server
 	mapObjects_[nPlayerID_].data_from_ml = 1.001f;

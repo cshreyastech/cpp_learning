@@ -30,6 +30,7 @@ struct sPlayerDescription
 	uint32_t n_points = 0;
 
 	float data_from_ml = 0.0f; 
+	bool cloud_set_for_client = false;
 	char p_vertices_compressed[]; // Flexible array member
 };
 
