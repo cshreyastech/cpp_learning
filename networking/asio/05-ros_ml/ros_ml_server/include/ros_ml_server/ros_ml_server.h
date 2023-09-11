@@ -19,8 +19,8 @@ public:
  ~RosMLServer();
 
 private:
-  std::unordered_map<uint32_t, sPlayerDescription> m_mapPlayerRoster;
-	std::vector<uint32_t> m_vGarbageIDs;
+  std::unordered_map<uint32_t, sPlayerDescription> m_mapPlayerRoster_;
+	std::vector<uint32_t> m_vGarbageIDs_;
   void Serialize(const char* data, float vertices[], const int vertices_length);
   void Deserialize(const char* data, float vertices[], const int vertices_length);
 

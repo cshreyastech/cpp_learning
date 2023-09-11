@@ -29,16 +29,16 @@ void RosMLServer::OnClientDisconnect(std::shared_ptr<olc::net::connection<GameMs
 {
 	if (client)
 	{
-		if (m_mapPlayerRoster.find(client->GetID()) == m_mapPlayerRoster.end())
+		if (m_mapPlayerRoster_.find(client->GetID()) == m_mapPlayerRoster_.end())
 		{
 			// client never added to roster, so just let it disappear
 		}
 		else
 		{
-			auto& pd = m_mapPlayerRoster[client->GetID()];
+			auto& pd = m_mapPlayerRoster_[client->GetID()];
 			std::cout << "[UNGRACEFUL REMOVAL]:" + std::to_string(pd.nUniqueID) + "\n";
-			m_mapPlayerRoster.erase(client->GetID());
-			m_vGarbageIDs.push_back(client->GetID());
+			m_mapPlayerRoster_.erase(client->GetID());
+			m_vGarbageIDs_.push_back(client->GetID());
 		}
 	}
 
@@ -46,9 +46,9 @@ void RosMLServer::OnClientDisconnect(std::shared_ptr<olc::net::connection<GameMs
 
 void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> client, olc::net::message<GameMsg>& msg)
 {
-	if (!m_vGarbageIDs.empty())
+	if (!m_vGarbageIDs_.empty())
 	{
-		for (auto pid : m_vGarbageIDs)
+		for (auto pid : m_vGarbageIDs_)
 		{
 			olc::net::message<GameMsg> m;
 			m.header.id = GameMsg::Game_RemovePlayer;
@@ -56,7 +56,7 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			std::cout << "Removing " << pid << "\n";
 			MessageAllClients(m);
 		}
-		m_vGarbageIDs.clear();
+		m_vGarbageIDs_.clear();
 	}
 
 
@@ -69,7 +69,7 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			msg >> desc;
 			desc.nUniqueID = client->GetID();
 			desc.n_points = 2;
-			m_mapPlayerRoster.insert_or_assign(desc.nUniqueID, desc);
+			m_mapPlayerRoster_.insert_or_assign(desc.nUniqueID, desc);
 
 			olc::net::message<GameMsg> msgSendID;
 			msgSendID.header.id = GameMsg::Client_AssignID;
@@ -83,7 +83,7 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			msgAddPlayer << desc;
 			MessageAllClients(msgAddPlayer);
 
-			for (const auto& player : m_mapPlayerRoster)
+			for (const auto& player : m_mapPlayerRoster_)
 			{
 				olc::net::message<GameMsg> msgAddOtherPlayers;
 				msgAddOtherPlayers.header.id = GameMsg::Game_AddPlayer;
