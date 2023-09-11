@@ -115,7 +115,7 @@ protected:
 				sPlayerDescription desc_from_client;
 				msg >> desc_from_client;
 
-				/*
+				
 				const int n_points = 2;
   
   			const int vertices_length = n_points * 6;
@@ -137,11 +137,11 @@ protected:
 				// auto compression_start = std::chrono::high_resolution_clock::now();
 				snappy::RawCompress(p_vertices, vertices_size, 
 					p_vertices_compressed, &p_vertices_compressed_length);
-				*/
+				
 
 
-				char p_vertices_compressed[]  = { 'a', 'b', 'c', 'd', 'e' };
-				size_t p_vertices_compressed_length = sizeof(p_vertices_compressed);
+				// char p_vertices_compressed[]  = { 'a', 'b', 'c', 'd', 'e' };
+				// size_t p_vertices_compressed_length = sizeof(p_vertices_compressed);
 
 				const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
 				sPlayerDescription *desc_to_client = new sPlayerDescription();
@@ -155,9 +155,8 @@ protected:
 				MessageAllClients(msg);
 
 
-				// MessageAllClientsV2(msg);
-				// delete[] p_vertices;
-				// delete[] p_vertices_compressed;
+				delete[] p_vertices;
+				delete[] p_vertices_compressed;
 				delete desc_to_client;
 				break;
 			}

@@ -99,29 +99,46 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					mapObjects.insert_or_assign(desc_from_server->nUniqueID, *desc_from_server);
 	
 
+
 					{
-						size_t p_vertices_compressed_length_check;
-						p_vertices_compressed_length_check = desc_from_server->p_vertices_compressed_length;
-						char p_vertices_compressed_check[p_vertices_compressed_length_check];
-						
-						memcpy(&p_vertices_compressed_check, desc_from_server->p_vertices_compressed,
-							desc_from_server->p_vertices_compressed_length);
-						std::string p_vertices_compressed_str_check(p_vertices_compressed_check);
+										//// check tbd ////////////////	
+						const int n_points = 2;
+  
+  					const int vertices_length = n_points * 6;
+  					const int vertices_size = vertices_length * sizeof(float);
 
-						std::cout << "p_vertices_compressed_length_check: " 
-							<< p_vertices_compressed_length_check 
-							<< ", p_vertices_compressed_str_check: "
-							<< p_vertices_compressed_str_check
+						size_t p_vertices_compressed_length = desc_from_server->p_vertices_compressed_length;
+
+						char* p_vertices_compressed = 
+							new char[p_vertices_compressed_length];
+						memcpy(p_vertices_compressed, desc_from_server->p_vertices_compressed, 
+							p_vertices_compressed_length);
+
+						std::cout << "p_vertices_compressed_length: " << p_vertices_compressed_length 
 							<< std::endl;
+									
+						char* p_vertices = new char[vertices_size];
+						bool raw_uncompress = 
+							snappy::RawUncompress(p_vertices_compressed, p_vertices_compressed_length,
+																p_vertices);
+						std::cout << "raw_uncompress: " << raw_uncompress << std::endl;
 
-
-						for(int i = 0; i < p_vertices_compressed_length_check; i++)
-						{
-							std::cout << "i: " << i << ", p_vertices_compressed_check: " 
-								<< p_vertices_compressed_check[i] << std::endl;
-						}
-						std::cout << std::endl;
+						float* vertices = new float[vertices_length];
+						Deserialize(p_vertices, vertices, vertices_length);
+						
+						delete[] p_vertices_compressed;
+						delete[] p_vertices;
+						std::cout << "vertices[11] = 0.031373f: " << vertices[11] << std::endl;
+						////////////////
 					}
+
+
+
+
+
+
+
+
 
 
 
