@@ -95,7 +95,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 					ReadMessage(msg, *desc_from_server, data_size);
 					
-					desc_from_server->cloud_set_for_client = true;
+					// desc_from_server->cloud_set_for_client = true;
 					mapObjects_.insert_or_assign(desc_from_server->nUniqueID, *desc_from_server);
 	
 
@@ -175,47 +175,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 	{
 		return true;
 	}
-	// Get the snappy compressed cloud from server
-	// Uncompress it and publish render it in ML
-	// size_t p_vertices_compressed_length = mapObjects_[nPlayerID_].p_vertices_compressed_length;
-	
-	// char *p_vertices_compressed = (char*)mapObjects_[nPlayerID_].p_vertices_compressed;
-	// std::cout << "static n_points_: " << RosMLClient::n_points_ << std::endl;
 
-	// {
-	// 					//// check tbd ////////////////	
-	// 	const int n_points =  mapObjects_[nPlayerID_].n_points;
-
-	// 	const int vertices_length = n_points * 6;
-	// 	const int vertices_size = vertices_length * sizeof(float);
-
-	// 	size_t p_vertices_compressed_length = mapObjects_[nPlayerID_].p_vertices_compressed_length;
-
-		
-	// 	// char* p_vertices_compressed = 
-	// 	// 	new char[p_vertices_compressed_length];
-	// 	// memcpy(p_vertices_compressed, desc_from_server->p_vertices_compressed, 
-	// 	// 	p_vertices_compressed_length);
-
-	// 	// std::cout << "p_vertices_compressed_length: " << p_vertices_compressed_length 
-	// 	// 	<< std::endl;
-					
-	// 	// char* p_vertices = new char[vertices_size];
-	// 	// bool raw_uncompress = 
-	// 	// 	snappy::RawUncompress(p_vertices_compressed, p_vertices_compressed_length,
-	// 	// 										p_vertices);
-	// 	// std::cout << "raw_uncompress: " << raw_uncompress << std::endl;
-
-	// 	// float* vertices = new float[vertices_length];
-	// 	// Deserialize(p_vertices, vertices, vertices_length);
-		
-	// 	// delete[] p_vertices_compressed;
-	// 	// delete[] p_vertices;
-		
-	// 	// assert(vertices[vertices_length - 1] == 0.031373f);
-	// 	// delete[] vertices;
-	// 	////////////////
-	// }
 
 	if(mapObjects_[nPlayerID_].cloud_set_for_client)
 	{
@@ -223,7 +183,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 		const int vertices_length = n_points * 6;
 		const int vertices_size = vertices_length * sizeof(float);
 
-		assert(vertices[vertices_length - 1] == 0.619608f);
+		assert(vertices[vertices_length - 1] == 0.031373f);
 		// assert(vertices[11] == 0.031373f);
 
 	}
