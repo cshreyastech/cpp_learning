@@ -97,6 +97,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 					ReadMessage(msg, *desc_from_server, data_size);
 					mapObjects.insert_or_assign(desc_from_server->nUniqueID, *desc_from_server);
+	
 
 					{
 						size_t p_vertices_compressed_length_check;
@@ -121,6 +122,8 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 						}
 						std::cout << std::endl;
 					}
+
+
 
 					delete desc_from_server;
 
