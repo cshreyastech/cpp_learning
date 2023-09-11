@@ -22,20 +22,14 @@ enum class GameMsg : uint32_t
 
 struct sPlayerDescription
 {
+	// p_vertices_compressed_length should be the first element of the struct
+	// as this is extracted by the client for creating heap variable. 
+	size_t p_vertices_compressed_length = 0;
+	
 	uint32_t nUniqueID = 0;
 	uint32_t n_points = 0;
 
-	float data_from_ml = 0.0f;
-	size_t p_vertices_compressed_length = 0; 
+	float data_from_ml = 0.0f; 
 	char p_vertices_compressed[]; // Flexible array member
 };
 
-struct sPlayerDescriptionPtr
-{
-	uint32_t nUniqueID = 0;
-	// uint32_t n_points = 0;
-
-	// float data_from_ml = 0.0f;
-	// size_t p_vertices_compressed_length = 0; 
-	char** p_vertices_compressed_ptr; // Flexible array member
-};

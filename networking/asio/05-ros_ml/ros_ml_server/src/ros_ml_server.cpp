@@ -111,7 +111,7 @@ protected:
 			{
 				// Simply bounce update to everyone except incoming client
 				// MessageAllClients(msg, client);
-				
+
 				sPlayerDescription desc_from_client;
 				msg >> desc_from_client;
 
@@ -154,9 +154,11 @@ protected:
 				// desc->p_vertices_compressed_length = p_vertices_compressed_length;
 				char p_vertices_compressed[]  = { 'a', 'b', 'c', 'd', 'e' };
 				size_t p_vertices_compressed_length = sizeof(p_vertices_compressed);
+				const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
 				sPlayerDescription *desc_to_client = new sPlayerDescription();
-				desc_to_client = 
-					(sPlayerDescription*)malloc(sizeof(sPlayerDescription) + p_vertices_compressed_length);
+				desc_to_client = (sPlayerDescription*)malloc(data_size);
+	
+
 
 				desc_to_client->p_vertices_compressed_length = p_vertices_compressed_length;
 				desc_to_client->nUniqueID = desc_from_client.nUniqueID;

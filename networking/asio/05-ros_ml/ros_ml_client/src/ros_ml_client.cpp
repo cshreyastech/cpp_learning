@@ -65,6 +65,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 				{
 					sPlayerDescription desc;
 					msg >> desc;
+
 					mapObjects.insert_or_assign(desc.nUniqueID, desc);
 
 					if (desc.nUniqueID == nPlayerID)
@@ -85,10 +86,16 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 				case(GameMsg::Game_UpdatePlayer):
 				{
+					size_t* q = (size_t*)msg.body.data();
+					size_t p_vertices_compressed_length = *q;
+					// std::cout << "p_vertices_compressed_length from *q: " 
+					// 	<< p_vertices_compressed_length << std::endl;
+
+					const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
 					sPlayerDescription *desc_from_server = new sPlayerDescription();
-					desc_from_server = 
-					(sPlayerDescription*)malloc(sizeof(sPlayerDescription) + 5);
-					ReadMessage(msg, *desc_from_server, 24 + 5);
+					desc_from_server = (sPlayerDescription*)malloc(data_size);
+
+					ReadMessage(msg, *desc_from_server, data_size);
 					mapObjects.insert_or_assign(desc_from_server->nUniqueID, *desc_from_server);
 
 					{
