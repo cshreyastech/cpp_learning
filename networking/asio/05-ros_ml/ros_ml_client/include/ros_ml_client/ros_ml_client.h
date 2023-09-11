@@ -16,10 +16,10 @@ public:
  ~RosMLClient();
 
 private:
-	std::unordered_map<uint32_t, sPlayerDescription> mapObjects;
-	uint32_t nPlayerID = 0;
-	bool bWaitingForConnection{true};
-	sPlayerDescription descPlayer;
+	std::unordered_map<uint32_t, sPlayerDescription> mapObjects_;
+	uint32_t nPlayerID_ = 0;
+	bool bWaitingForConnection_{true};
+	sPlayerDescription descPlayer_;
 
 public:
 	bool OnUserCreate() override;

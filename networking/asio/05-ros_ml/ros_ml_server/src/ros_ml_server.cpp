@@ -185,8 +185,8 @@ void RosMLServer::Deserialize(const char* data, float vertices[], const int vert
 
 int main()
 {
-	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_0.txt";
-	const int n_points = 307200;
+	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_test.txt";
+	const int n_points = 2;
 	RosMLServer server(cloud_file_path, n_points, 60000);
 	server.Start();
 
