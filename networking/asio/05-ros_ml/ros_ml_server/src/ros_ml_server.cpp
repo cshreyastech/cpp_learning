@@ -1,13 +1,34 @@
 #include "ros_ml_server/ros_ml_server.h"
 
-RosMLServer::RosMLServer(uint16_t nPort) : olc::net::server_interface<GameMsg>(nPort)
+RosMLServer::RosMLServer(const std::string cloud_file_path, const int n_points, uint16_t nPort) 
+	: n_points_(n_points), olc::net::server_interface<GameMsg>(nPort)
 {
+	vertices_length_ = n_points_ * 6;
+  vertices_size_ = vertices_length_ * sizeof(float);
+
+	vertices_ = new float[vertices_length_];
+
+	std::string each_value_str;
+  int n_values_read_from_file  = 0;
+
+	std::ifstream file_handler(cloud_file_path);
+  while(file_handler >> each_value_str)
+  {
+    std::string each_value_clean_str = 
+      each_value_str.substr(0, each_value_str.find("f", 0));
+
+    float value_float = std::stof(each_value_clean_str);
+
+    vertices_[n_values_read_from_file] = value_float;
+    n_values_read_from_file++;
+  }
+  assert(n_points_ == (n_values_read_from_file)/6);
 
 }
 
 RosMLServer::~RosMLServer()
 {
-
+	delete[] vertices_;
 }
 
 bool RosMLServer::OnClientConnect(std::shared_ptr<olc::net::connection<GameMsg>> client)
@@ -108,26 +129,27 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			msg >> desc_from_client;
 
 			
-			const int n_points = 2;
+			// const int n_points = 2;
 
-			const int vertices_length = n_points * 6;
-			const int vertices_size = vertices_length * sizeof(float);
+			// const int vertices_length = n_points * 6;
+			// const int vertices_size = vertices_length * sizeof(float);
 
-			float vertices[vertices_length] = 
-			{
-				0.024249f, 0.034523f, -0.085764f, 1.000000f, 0.141176f, 0.031373f, 
-				0.024413f, 0.034542f, -0.085810f, 1.000000f, 0.133333f, 0.031373f, 
-			};
-			const char* p_vertices = (const char*)malloc(vertices_size);
-			Serialize(p_vertices, vertices, vertices_length);
+			// float vertices[vertices_length] = 
+			// {
+			// 	0.024249f, 0.034523f, -0.085764f, 1.000000f, 0.141176f, 0.031373f, 
+			// 	0.024413f, 0.034542f, -0.085810f, 1.000000f, 0.133333f, 0.031373f, 
+			// };
+
+			const char* p_vertices = (const char*)malloc(vertices_size_);
+			Serialize(p_vertices, vertices_, vertices_length_);
 
 			// Compress
 			char* p_vertices_compressed = 
-				new char[snappy::MaxCompressedLength(vertices_size)];
+				new char[snappy::MaxCompressedLength(vertices_size_)];
 			size_t p_vertices_compressed_length;
 
 			// auto compression_start = std::chrono::high_resolution_clock::now();
-			snappy::RawCompress(p_vertices, vertices_size, 
+			snappy::RawCompress(p_vertices, vertices_size_, 
 				p_vertices_compressed, &p_vertices_compressed_length);
 			
 
@@ -178,7 +200,9 @@ void RosMLServer::Deserialize(const char* data, float vertices[], const int vert
 
 int main()
 {
-	RosMLServer server(60000);
+	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_test.txt";
+	const int n_points = 2;
+	RosMLServer server(cloud_file_path, n_points, 60000);
 	server.Start();
 
 	while (1)
