@@ -9,7 +9,8 @@ RosMLClient::RosMLClient() : olc::GameEngine() , olc::net::client_interface<Game
 
 RosMLClient::~RosMLClient()
 {
-	delete[] vertices;
+	std::cout << "inside ~RosMLClient()\n";
+	// delete[] vertices;
 }
 
 bool RosMLClient::OnUserCreate()
@@ -133,15 +134,16 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 	if(mapObjects_[nPlayerID_].cloud_set_for_client)
 	{
-		const int n_points =  mapObjects_[nPlayerID_].n_points;
-		const int vertices_length = n_points * 6;
-		const int vertices_size = vertices_length * sizeof(float);
+		n_points =  mapObjects_[nPlayerID_].n_points;
+		// const int vertices_length = n_points * 6;
+		// const int vertices_size = vertices_length * sizeof(float);
 
 		// assert(vertices[vertices_length - 1] == 0.031373f);
-		assert(vertices[vertices_length - 1] == 0.619608f);
+		// assert(vertices[vertices_length - 1] == 0.619608f);
 
+		GameEngine::OnUserUpdate(0.0f);
 	}
-	
+
 
 	// Get head and eye pose from ML and send it back to server
 	mapObjects_[nPlayerID_].data_from_ml = 1.001f;
@@ -165,8 +167,14 @@ void RosMLClient::Deserialize(const char* data, float vertices[], const int vert
   }
 }
 
-int main()
+int main(void)
 {
+	// struct sigaction sa;
+	// memset( &sa, 0, sizeof(sa) );
+	// sa.sa_handler = got_signal;
+	// sigfillset(&sa.sa_mask);
+	// sigaction(SIGINT,&sa,NULL);
+
 	RosMLClient ros_ml_client;
 	if (ros_ml_client.Construct(800, 600))
 		ros_ml_client.Start();

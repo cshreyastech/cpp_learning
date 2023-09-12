@@ -8,7 +8,8 @@ namespace olc
 
   GameEngine::~GameEngine()
   {
-
+    std::cout << "Inside ~GameEngine()\n";
+    delete[] vertices;
   }
 
   olc::rcode GameEngine::Construct(int32_t screen_w, int32_t screen_h)
@@ -27,6 +28,13 @@ namespace olc
 
   bool GameEngine::OnUserUpdate(float fElaspedTime)
   {
+    const int vertices_length = n_points * 6;
+		const int vertices_size = vertices_length * sizeof(float);
+
+    assert(vertices[vertices_length - 1] == 0.619608f);
+    // std::cout << "GameEngine::OnUserUpdate() - validated:" << std::endl;
+
+    // assert(vertices[vertices_length - 1] == 0.619608f);
     // while (!glfwWindowShouldClose(window_))
     // {
 
