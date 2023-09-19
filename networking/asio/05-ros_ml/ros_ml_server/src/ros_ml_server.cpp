@@ -143,8 +143,12 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 
 			const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
-			sPlayerDescription *desc_to_client = new sPlayerDescription();
-			desc_to_client = (sPlayerDescription*)malloc(data_size);
+			// sPlayerDescription *desc_to_client = new sPlayerDescription();
+			// desc_to_client = (sPlayerDescription*)malloc(data_size);
+			sPlayerDescription *desc_to_client = 
+				reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * p_vertices_compressed_length - 1]);
+			// desc_to_client = (sPlayerDescription*)malloc(data_size);
+
 
 			desc_to_client->p_vertices_compressed_length = p_vertices_compressed_length;
 			desc_to_client->nUniqueID = desc_from_client.nUniqueID;
@@ -156,7 +160,9 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 
 			delete[] p_vertices_compressed;
-			delete desc_to_client;
+
+			delete[] reinterpret_cast<char*>(desc_to_client);
+			// delete desc_to_client;
 			break;
 		}
 

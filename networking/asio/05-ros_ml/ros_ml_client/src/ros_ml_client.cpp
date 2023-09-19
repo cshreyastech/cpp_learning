@@ -96,11 +96,22 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
 					sPlayerDescription *desc_from_server = new sPlayerDescription();
 					desc_from_server = (sPlayerDescription*)malloc(data_size);
+					// sPlayerDescription *desc_from_server = 
+					// reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * p_vertices_compressed_length - 1]);
+
 
 					ReadMessage(msg, *desc_from_server, data_size);
-					
+					sPlayerDescription desc_from_server_stack;
+
+					desc_from_server_stack.p_vertices_compressed_length = desc_from_server->p_vertices_compressed_length;
+					desc_from_server_stack.nUniqueID = desc_from_server->nUniqueID;
+					desc_from_server_stack.n_points = desc_from_server->n_points;
+					desc_from_server_stack.data_from_ml = desc_from_server->data_from_ml;
+					desc_from_server_stack.cloud_set_for_client = desc_from_server->cloud_set_for_client;
+					desc_from_server_stack.cloud_set_for_client = desc_from_server->cloud_set_for_client;
+
 					// desc_from_server->cloud_set_for_client = true;
-					mapObjects_.insert_or_assign(desc_from_server->nUniqueID, *desc_from_server);
+					mapObjects_.insert_or_assign(desc_from_server->nUniqueID, desc_from_server_stack);
 	
 					const int n_points = desc_from_server->n_points;
 					const int vertices_length = n_points * 6;
@@ -117,18 +128,11 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					// float vertices[vertices_length];
 					Deserialize(p_vertices, vertices, vertices_length);
 
-				
-					// float *qq = (float*)p_vertices;
-					// for(int i = 0; i < vertices_length; i++)
-					// {
-					// 	vertices[i] = *qq; qq++;
-					// }
-				
+
 
 					// assert(vertices[vertices_length - 1] == 0.619608f);
 
-					delete desc_from_server;
-
+					delete[] desc_from_server;
 					break;
 				}
 			}

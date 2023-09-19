@@ -20,6 +20,7 @@ enum class GameMsg : uint32_t
 	Game_UpdatePlayer,
 };
 
+// https://stackoverflow.com/questions/17424731/implementing-flexible-array-members-with-templates-and-base-class
 struct sPlayerDescription
 {
 	// p_vertices_compressed_length should be the first element of the struct
@@ -31,6 +32,6 @@ struct sPlayerDescription
 
 	float data_from_ml = 0.0f; 
 	bool cloud_set_for_client = false;
-	char p_vertices_compressed[]; // Flexible array member
+	char p_vertices_compressed[1]; // Flexible array member
 };
 
