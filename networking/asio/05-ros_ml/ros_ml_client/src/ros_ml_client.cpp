@@ -1,6 +1,9 @@
 
 #include "ros_ml_client/ros_ml_client.h"
-
+#include <thread>
+#include <algorithm>
+#include <iterator>
+#include <iostream>
 
 RosMLClient::RosMLClient() : olc::GameEngine() , olc::net::client_interface<GameMsg>()
 {
@@ -103,20 +106,26 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					const int vertices_length = n_points * 6;
 					const int vertices_size = vertices_length * sizeof(float);
 
-					char* p_vertices_compressed = 
-						new char[p_vertices_compressed_length];
-					memcpy(p_vertices_compressed, desc_from_server->p_vertices_compressed, 
-						p_vertices_compressed_length);
-								
-					char* p_vertices = new char[vertices_size];
+					char p_vertices[vertices_size];
+
 					bool raw_uncompress = 
-						snappy::RawUncompress(p_vertices_compressed, p_vertices_compressed_length,
-															p_vertices);
+						snappy::RawUncompress(desc_from_server->p_vertices_compressed, 
+							p_vertices_compressed_length,
+							p_vertices);
 
 					vertices = new float[vertices_length];
+					// float vertices[vertices_length];
 					Deserialize(p_vertices, vertices, vertices_length);
-					
-					delete[] p_vertices_compressed;
+
+				
+					// float *qq = (float*)p_vertices;
+					// for(int i = 0; i < vertices_length; i++)
+					// {
+					// 	vertices[i] = *qq; qq++;
+					// }
+				
+
+					// assert(vertices[vertices_length - 1] == 0.619608f);
 
 					delete desc_from_server;
 
@@ -140,8 +149,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 		// assert(vertices[vertices_length - 1] == 0.031373f);
 		// assert(vertices[vertices_length - 1] == 0.619608f);
-
-		GameEngine::OnUserUpdate(0.0f);
+		GameEngine::OnUserUpdate(0.0f);		
 	}
 
 
@@ -166,6 +174,7 @@ void RosMLClient::Deserialize(const char* data, float vertices[], const int vert
     vertices[i] = *q; q++;
   }
 }
+
 
 int main(void)
 {

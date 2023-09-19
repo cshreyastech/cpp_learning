@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
-#include "glad/glad.h"
+// #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <cassert>
@@ -41,15 +41,10 @@ namespace olc
   public: // User override interface
   // Called once on application startup, use to load your resources
   virtual bool OnUserCreate();
-  // // Called every frame, and provides with a time per frame value
+  // Called every frame, and provides with a time per frame value
   virtual bool OnUserUpdate(float fElaspedTime);
   // Called once an application termination, used for clearing resources
   virtual bool OnUserDestroy();
-
-  olc::rcode PublishCloud(float vertices[]);
-  // public: // DRAWING ROUTINES
-  //   // Draws a single Pixel
-  //   // To be filled later
 
   public: // Branding
 		std::string sAppName;

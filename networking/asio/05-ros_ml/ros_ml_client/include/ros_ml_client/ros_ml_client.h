@@ -37,7 +37,6 @@ private:
 public:
 	bool OnUserCreate() override;
   bool OnUserUpdate(float fElapsedTime) override;
-
 private:
 	void Deserialize(const char* data, float vertices[], const int vertices_length);
 };
