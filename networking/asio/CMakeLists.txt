@@ -100,38 +100,71 @@ set(SNAPPY_BUILD_BENCHMARKS OFF CACHE BOOL "")
 set(SNAPPY_BUILD_TESTS OFF CACHE BOOL "")
 add_subdirectory(external/snappy)
 
-set(ros_ml_client_header_dir "${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_client/include")
-set(ros_ml_server_header_dir "${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_server/include")
+# set(ros_ml_client_header_dir "${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_client/include")
+# set(ros_ml_server_header_dir "${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_server/include")
 
-set(ros_ml_server 05-ros_ml_server)
+# set(ros_ml_server 05-ros_ml_server)
+# add_executable(${ros_ml_server}
+#   ${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_server/src/ros_ml_server.cpp)
+  
+# target_include_directories(${ros_ml_server} 
+#   PRIVATE ${asio_header_dir}
+#   PRIVATE ${ros_ml_server_header_dir}
+#   PRIVATE ${external_dir}/snappy
+# )
+
+# target_link_libraries(${ros_ml_server} 
+# PRIVATE pthread
+# PRIVATE snappy
+# )
+
+
+# set(ros_ml_client 05-ros_ml_client)
+# add_executable(${ros_ml_client}
+#   ${external_dir}/glad/glad.c
+#   ${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_client/src/game_engine.cpp
+#   ${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_client/src/ros_ml_client.cpp
+#   )
+  
+# target_include_directories(${ros_ml_client} 
+#   PRIVATE ${asio_header_dir}
+#   PRIVATE ${external_dir}
+#   PRIVATE ${external_dir}/snappy
+#   PRIVATE ${ros_ml_server_header_dir}
+#   PRIVATE ${ros_ml_client_header_dir}
+# )
+
+# target_link_libraries(${ros_ml_client} ${target_common_libraries})
+#############################################################
+set(ros_ml_client_header_dir "${PROJECT_SOURCE_DIR}/06-ros_ml/ros_ml_client/include")
+set(ros_ml_server_header_dir "${PROJECT_SOURCE_DIR}/06-ros_ml/ros_ml_server/include")
+
+set(ros_ml_server 06-ros_ml_server)
 add_executable(${ros_ml_server}
-  ${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_server/src/ros_ml_server.cpp)
+  ${PROJECT_SOURCE_DIR}/06-ros_ml/ros_ml_server/src/ros_ml_server.cpp)
   
 target_include_directories(${ros_ml_server} 
   PRIVATE ${asio_header_dir}
   PRIVATE ${ros_ml_server_header_dir}
-  PRIVATE ${external_dir}/snappy
 )
 
 target_link_libraries(${ros_ml_server} 
-PRIVATE pthread
-PRIVATE snappy
+  PRIVATE pthread
 )
 
 
-set(ros_ml_client 05-ros_ml_client)
+set(ros_ml_client 06-ros_ml_client)
 add_executable(${ros_ml_client}
-  ${external_dir}/glad/glad.c
-  ${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_client/src/game_engine.cpp
-  ${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_client/src/ros_ml_client.cpp
+  ${PROJECT_SOURCE_DIR}/06-ros_ml/ros_ml_client/src/game_engine.cpp
+  ${PROJECT_SOURCE_DIR}/06-ros_ml/ros_ml_client/src/ros_ml_client.cpp
   )
   
 target_include_directories(${ros_ml_client} 
   PRIVATE ${asio_header_dir}
-  PRIVATE ${external_dir}
-  PRIVATE ${external_dir}/snappy
   PRIVATE ${ros_ml_server_header_dir}
   PRIVATE ${ros_ml_client_header_dir}
 )
 
-target_link_libraries(${ros_ml_client} ${target_common_libraries})
+target_link_libraries(${ros_ml_client} 
+  PRIVATE pthread
+)

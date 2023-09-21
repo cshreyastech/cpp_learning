@@ -5,12 +5,12 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "05-ros_ml_server",
+			"name": "06-ros_ml_server",
 			"type": "cppdbg",
 			"request": "launch",
 			// Resolved by CMake Tools:
 			// "program": "${command:cmake.launchTargetPath}",
-			"program": "${workspaceRoot}/build/05-ros_ml_server",
+			"program": "${workspaceRoot}/build/06-ros_ml_server",
 			"args": [],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",
@@ -33,12 +33,12 @@
 			]
 		},
 		{
-			"name": "05-ros_ml_client",
+			"name": "06-ros_ml_client",
 			"type": "cppdbg",
 			"request": "launch",
 			// Resolved by CMake Tools:
 			// "program": "${command:cmake.launchTargetPath}",
-			"program": "${workspaceRoot}/build/05-ros_ml_client",
+			"program": "${workspaceRoot}/build/06-ros_ml_client",
 			"args": [],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",
