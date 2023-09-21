@@ -30,7 +30,7 @@ private:
 	std::unordered_map<uint32_t, sPlayerDescription> mapObjects_;
 	uint32_t nPlayerID_ = 0;
 	bool bWaitingForConnection_{true};
-	// float* vertices;
+	// float* vertices_;
 	// Should be the last declared variable as it as flexible array member
 	sPlayerDescription descPlayer_;
 
