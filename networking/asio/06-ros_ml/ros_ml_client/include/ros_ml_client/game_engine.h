@@ -38,6 +38,7 @@ namespace olc
     olc::rcode Construct(int32_t screen_w, int32_t screen_h);
     olc::rcode Start();
 
+    void PublishCoud(float vertices[], const int n_points);
   public: // User override interface
   // Called once on application startup, use to load your resources
   virtual bool OnUserCreate();

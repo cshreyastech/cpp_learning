@@ -59,4 +59,13 @@ namespace olc
     return olc::rcode::OK;
   }
 
+  void GameEngine::PublishCoud(float vertices[], const int n_points)
+  {
+    const int vertices_length = n_points * 6;
+    std::cout << 
+      "GameEngine::PublishCoud - vertices[vertices_length - 1] 0.031373f:" << 
+      vertices[vertices_length - 1] << 
+      std::endl;
+
+  }
 } // namespace olc

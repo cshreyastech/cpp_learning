@@ -95,7 +95,9 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					msg >> desc;
 					mapObjects_.insert_or_assign(desc.nUniqueID, desc);
 					
-					assert(desc.vertices[11] == 0.031373f);
+					// const int n_points = desc.n_points;
+					// const int vertices_length = n_points * 6;
+					// assert(desc.vertices[vertices_length - 1] == 0.031373f);
 					
 					break;
 				}
@@ -108,10 +110,22 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 		return true;
 	}
 
+	const int n_points = mapObjects_[nPlayerID_].n_points;
+	const int vertices_length = n_points * 6;
+	PublishCoud(mapObjects_[nPlayerID_].vertices, n_points);
+
+	// std::cout 
+	// 	<< "mapObjects_[nPlayerID_].vertices[vertices_length - 1] 0.031373f:" 
+	// 	<< mapObjects_[nPlayerID_].vertices[vertices_length - 1] 
+	// 	<< std::endl;
+
+	// assert(mapObjects_[nPlayerID_].vertices[vertices_length - 1] == 0.031373f);
+
 	// Send player description
 	olc::net::message<GameMsg> msg;
 	msg.header.id = GameMsg::Game_UpdatePlayer;
 	msg << mapObjects_[nPlayerID_];
+
 
 	Send(msg);
 
@@ -130,12 +144,6 @@ void RosMLClient::Deserialize(const char* data, float vertices[], const int vert
 
 int main(void)
 {
-	// struct sigaction sa;
-	// memset( &sa, 0, sizeof(sa) );
-	// sa.sa_handler = got_signal;
-	// sigfillset(&sa.sa_mask);
-	// sigaction(SIGINT,&sa,NULL);
-
 	RosMLClient ros_ml_client;
 	if (ros_ml_client.Construct(800, 600))
 		ros_ml_client.Start();

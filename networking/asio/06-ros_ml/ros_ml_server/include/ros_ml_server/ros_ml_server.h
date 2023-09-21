@@ -31,7 +31,7 @@ private:
   const int n_points_{0};
   int vertices_length_{0};
   size_t vertices_size_{0};
-
+  std::string cloud_file_path_;
 
 private:
   void Serialize(const char* data, float vertices[], const int vertices_length);

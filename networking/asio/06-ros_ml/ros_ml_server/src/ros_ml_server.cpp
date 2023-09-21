@@ -6,7 +6,7 @@ RosMLServer::RosMLServer(const std::string cloud_file_path, const int n_points, 
 {
 	vertices_length_ = n_points_ * 6;
   vertices_size_ = vertices_length_ * sizeof(float);
-
+	cloud_file_path_ = cloud_file_path;
 	// vertices_ = new float[vertices_length_];
 
 	// std::string each_value_str;
@@ -124,24 +124,29 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 		{
 			// Simply bounce update to everyone except incoming client
 			// MessageAllClients(msg, client);
-			
+			// Get new set of vector from ROS after integration
+
 			sPlayerDescription desc;
 			msg >> desc;
 
-			desc.vertices[0] =  0.024249f;
-			desc.vertices[1] =  0.034523f;
-			desc.vertices[2] =  -0.085764f;
-			desc.vertices[3] =  1.000000f;
-			desc.vertices[4] =  0.141176f;
-			desc.vertices[5] =  0.031373f;
+			std::string each_value_str;
+			int n_values_read_from_file  = 0;
 
-			desc.vertices[6] =  0.024413f;
-			desc.vertices[7] =  0.034542f;
-			desc.vertices[8] =  -0.085810f;
-			desc.vertices[9] =  1.000000f;
-			desc.vertices[10] =  0.133333f;
-			desc.vertices[11] =  0.031373f;
-			
+			std::ifstream file_handler(cloud_file_path_);
+			while(file_handler >> each_value_str)
+			{
+				std::string each_value_clean_str = 
+					each_value_str.substr(0, each_value_str.find("f", 0));
+
+				float value_float = std::stof(each_value_clean_str);
+
+				desc.vertices[n_values_read_from_file] = value_float;
+				n_values_read_from_file++;
+			}
+			assert(n_points_ == (n_values_read_from_file)/6);
+
+
+
 			msg << desc;
 			MessageAllClients(msg);
 
