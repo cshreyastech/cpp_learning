@@ -141,7 +141,6 @@ void RosMLClient::Deserialize(const char* data, float vertices[], const int vert
   }
 }
 
-
 int main(void)
 {
 	RosMLClient ros_ml_client;

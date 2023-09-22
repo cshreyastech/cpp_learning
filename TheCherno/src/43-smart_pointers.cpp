@@ -25,9 +25,11 @@ int main()
   }
 
   {
+    // Automated exception hadling. better to use this.
     std::unique_ptr<Entity> entity = std::make_unique<Entity>();
     entity->Print();
   }
+
   {
     std::shared_ptr<Entity> e0;
     {
