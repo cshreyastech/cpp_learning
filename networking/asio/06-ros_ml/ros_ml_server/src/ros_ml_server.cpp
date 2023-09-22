@@ -7,23 +7,6 @@ RosMLServer::RosMLServer(const std::string cloud_file_path, const int n_points, 
 	vertices_length_ = n_points_ * 6;
   vertices_size_ = vertices_length_ * sizeof(float);
 	cloud_file_path_ = cloud_file_path;
-	// vertices_ = new float[vertices_length_];
-
-	// std::string each_value_str;
-  // int n_values_read_from_file  = 0;
-
-	// std::ifstream file_handler(cloud_file_path);
-  // while(file_handler >> each_value_str)
-  // {
-  //   std::string each_value_clean_str = 
-  //     each_value_str.substr(0, each_value_str.find("f", 0));
-
-  //   float value_float = std::stof(each_value_clean_str);
-
-  //   vertices_[n_values_read_from_file] = value_float;
-  //   n_values_read_from_file++;
-  // }
-  // assert(n_points_ == (n_values_read_from_file)/6);
 }
 
 RosMLServer::~RosMLServer()
@@ -67,6 +50,7 @@ void RosMLServer::OnClientDisconnect(std::shared_ptr<olc::net::connection<GameMs
 
 void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> client, olc::net::message<GameMsg>& msg)
 {
+	PROFILE_FUNCTION();
 	if (!m_vGarbageIDs_.empty())
 	{
 		for (auto pid : m_vGarbageIDs_)
@@ -189,6 +173,8 @@ int main()
 {
 	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_test.txt";
 	const int n_points = 150000;
+
+	Instrumentor::Get().BeginSession("Profile");
 	RosMLServer server(cloud_file_path, n_points, 60000);
 	server.Start();
 
@@ -196,5 +182,7 @@ int main()
 	{
 		server.Update(-1, true);
 	}
+
+	Instrumentor::Get().EndSession();
 	return 0;
 }

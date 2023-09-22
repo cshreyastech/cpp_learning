@@ -1,5 +1,5 @@
-#ifndef ROS_ML_CLIENT_H
-#define ROS_ML_CLIENT_H
+#ifndef ROS_ML_SERVER_H
+#define ROS_ML_SERVER_H
 
 #include <iostream>
 #include <unordered_map>

@@ -118,6 +118,7 @@ namespace olc
 			template<typename DataType>
 			friend message<T>& operator << (message<T>& msg, const DataType& data)
 			{
+				PROFILE_FUNCTION();
 				// Check that the type of the data being pushed is trivially copyable
 				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pushed into vector");
 
@@ -141,6 +142,7 @@ namespace olc
 			template<typename DataType>
 			friend message<T>& operator >> (message<T>& msg, DataType& data)
 			{
+				PROFILE_FUNCTION();
 				// Check that the type of the data being pushed is trivially copyable
 				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pulled from vector");
 
@@ -306,6 +308,7 @@ namespace olc
 			connection(owner parent, asio::io_context& asioContext, asio::ip::tcp::socket socket, tsqueue<owned_message<T>>& qIn)
 				: m_asioContext(asioContext), m_socket(std::move(socket)), m_qMessagesIn(qIn)
 			{
+				PROFILE_FUNCTION();
 				m_nOwnerType = parent;
 
 				// Construct validation check data
@@ -339,6 +342,7 @@ namespace olc
 		public:
 			void ConnectToClient(olc::net::server_interface<T>* server, uint32_t uid = 0)
 			{
+				PROFILE_FUNCTION();
 				if (m_nOwnerType == owner::server)
 				{
 					if (m_socket.is_open())
@@ -361,6 +365,7 @@ namespace olc
 
 			void ConnectToServer(const asio::ip::tcp::resolver::results_type& endpoints)
 			{
+				PROFILE_FUNCTION();
 				// Only clients can connect to servers
 				if (m_nOwnerType == owner::client)
 				{
@@ -383,6 +388,7 @@ namespace olc
 
 			void Disconnect()
 			{
+				PROFILE_FUNCTION();
 				if (IsConnected())
 					asio::post(m_asioContext, [this]() { m_socket.close(); });
 			}
@@ -403,6 +409,7 @@ namespace olc
 			// the target, for a client, the target is the server and vice versa
 			void Send(const message<T>& msg)
 			{
+				PROFILE_FUNCTION();
 				asio::post(m_asioContext,
 					[this, msg]()
 					{
@@ -426,6 +433,7 @@ namespace olc
 			// ASYNC - Prime context to write a message header
 			void WriteHeader()
 			{
+				PROFILE_FUNCTION();
 				// If this function is called, we know the outgoing message queue must have 
 				// at least one message to send. So allocate a transmission buffer to hold
 				// the message, and issue the work - asio, send these bytes
@@ -471,6 +479,7 @@ namespace olc
 			// ASYNC - Prime context to write a message body
 			void WriteBody()
 			{
+				PROFILE_FUNCTION();
 				// If this function is called, a header has just been sent, and that header
 				// indicated a body existed for this message. Fill a transmission buffer
 				// with the body data, and send it!
@@ -502,6 +511,7 @@ namespace olc
 			// ASYNC - Prime context ready to read a message header
 			void ReadHeader()
 			{
+				PROFILE_FUNCTION();
 				// If this function is called, we are expecting asio to wait until it receives
 				// enough bytes to form a header of a message. We know the headers are a fixed
 				// size, so allocate a transmission buffer large enough to store it. In fact, 
@@ -541,6 +551,7 @@ namespace olc
 			// ASYNC - Prime context ready to read a message body
 			void ReadBody()
 			{
+				PROFILE_FUNCTION();
 				// If this function is called, a header has already been read, and that header
 				// request we read a body, The space for that body has already been allocated
 				// in the temporary message object, so just wait for the bytes to arrive...
@@ -704,6 +715,7 @@ namespace olc
 			// Connect to server with hostname/ip-address and port
 			bool Connect(const std::string& host, const uint16_t port)
 			{
+				PROFILE_FUNCTION();
 				try
 				{
 					// Resolve hostname/ip-address into tangiable physical address
@@ -760,6 +772,7 @@ namespace olc
 			// Send message to server
 			void Send(const message<T>& msg)
 			{
+				PROFILE_FUNCTION();
 				if (IsConnected())
 					m_connection->Send(msg);
 			}
@@ -804,6 +817,7 @@ namespace olc
 			// Starts the server!
 			bool Start()
 			{
+				PROFILE_FUNCTION();
 				try
 				{
 					// Issue a task to the asio context - This is important
@@ -830,6 +844,7 @@ namespace olc
 			// Stops the server!
 			void Stop()
 			{
+				PROFILE_FUNCTION();
 				// Request the context to close
 				m_asioContext.stop();
 
@@ -843,6 +858,7 @@ namespace olc
 			// ASYNC - Instruct asio to wait for connection
 			void WaitForClientConnection()
 			{
+				PROFILE_FUNCTION();
 				// Prime context with an instruction to wait until a socket connects. This
 				// is the purpose of an "acceptor" object. It will provide a unique socket
 				// for each incoming connection attempt
@@ -895,6 +911,7 @@ namespace olc
 			// Send a message to a specific client
 			void MessageClient(std::shared_ptr<connection<T>> client, const message<T>& msg)
 			{
+				PROFILE_FUNCTION();
 				// Check client is legitimate...
 				if (client && client->IsConnected())
 				{
@@ -920,6 +937,7 @@ namespace olc
 			// Send message to all clients
 			void MessageAllClients(const message<T>& msg, std::shared_ptr<connection<T>> pIgnoreClient = nullptr)
 			{
+				PROFILE_FUNCTION();
 				bool bInvalidClientExists = false;
 
 				// Iterate through all clients in container
@@ -954,6 +972,7 @@ namespace olc
 			// Force server to respond to incoming messages
 			void Update(size_t nMaxMessages = -1, bool bWait = false)
 			{
+				PROFILE_FUNCTION();
 				if (bWait) m_qMessagesIn.wait();
 
 				// Process as many messages as you can up to the value
