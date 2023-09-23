@@ -15,10 +15,15 @@
         "-I${workspaceFolder}/02-MMO/NetClient/include",
         "-I${workspaceFolder}/03-olcPGEX/MMO_Server/include",
         "-I${workspaceFolder}/04-ROS_ML/ROS_ML_Server/include",
+        
         "-I${workspaceFolder}/05-ros_ml/ros_ml_server/include",
         "-I${workspaceFolder}/05-ros_ml/ros_ml_client/include",
+
         "-I${workspaceFolder}/06-ros_ml/ros_ml_server/include",
         "-I${workspaceFolder}/06-ros_ml/ros_ml_client/include",
+
+        "-I${workspaceFolder}/07-ros_ml/ros_ml_server/include",
+        "-I${workspaceFolder}/07-ros_ml/ros_ml_client/include",
 
         "-o",
         "${fileDirname}/build/${fileBasenameNoExtension}",
