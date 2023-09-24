@@ -14,7 +14,6 @@ RosMLClient::RosMLClient() : olc::GameEngine() , olc::net::client_interface<Game
 RosMLClient::~RosMLClient()
 {
 	std::cout << "inside ~RosMLClient()\n";
-	// delete[] vertices;
 }
 
 bool RosMLClient::OnUserCreate()
@@ -132,14 +131,6 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 	return true;
 }
 
-void RosMLClient::Deserialize(const char* data, float vertices[], const int vertices_length)
-{
-  float *q = (float*)data;
-  for(int i = 0; i < vertices_length; i++)
-  {
-    vertices[i] = *q; q++;
-  }
-}
 
 int main(void)
 {

@@ -50,7 +50,6 @@ namespace olc
   public: // Branding
 		std::string sAppName;
 		int n_points;
-    // float* vertices;
 
   private:
     // GLFWwindow* window_;

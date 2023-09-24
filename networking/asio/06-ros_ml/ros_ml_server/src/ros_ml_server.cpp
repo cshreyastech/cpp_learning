@@ -150,29 +150,11 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 }
 
-void RosMLServer::Serialize(const char* data, float vertices[], const int vertices_length)
-{
-	float *q = (float*)data;
-	for(int i = 0; i < vertices_length; i++)
-	{
-		*q = vertices[i]; q++;
-	}
-}
-
-void RosMLServer::Deserialize(const char* data, float vertices[], const int vertices_length)
-{
-	float *q = (float*)data;
-	for(int i = 0; i < vertices_length; i++)
-	{
-		vertices[i] = *q; q++;
-	}
-}
-
 
 int main()
 {
 	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_test.txt";
-	const int n_points = 150000;
+	const int n_points = 125000;
 
 	Instrumentor::Get().BeginSession("Profile");
 	RosMLServer server(cloud_file_path, n_points, 60000);

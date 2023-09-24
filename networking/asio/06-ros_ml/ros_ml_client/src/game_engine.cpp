@@ -9,7 +9,6 @@ namespace olc
   GameEngine::~GameEngine()
   {
     std::cout << "Inside ~GameEngine()\n";
-    // delete[] vertices;
   }
 
   olc::rcode GameEngine::Construct(int32_t screen_w, int32_t screen_h)

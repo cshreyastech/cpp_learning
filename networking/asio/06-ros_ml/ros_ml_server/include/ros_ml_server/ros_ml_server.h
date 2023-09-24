@@ -33,10 +33,6 @@ private:
   size_t vertices_size_{0};
   std::string cloud_file_path_;
 
-private:
-  void Serialize(const char* data, float vertices[], const int vertices_length);
-  void Deserialize(const char* data, float vertices[], const int vertices_length);
-
 };
 
 #endif
