@@ -6,28 +6,37 @@ RosMLServer::RosMLServer(const std::string cloud_file_path, const int n_points, 
 	vertices_length_ = n_points_ * 6;
   vertices_size_ = vertices_length_ * sizeof(float);
 
-	vertices_ = new float[vertices_length_];
 
-	std::string each_value_str;
-  int n_values_read_from_file  = 0;
+	vertices_sa_ = new Vertex[n_points_];
+	ParseCloudFromFile(cloud_file_path, vertices_sa_);
 
-	std::ifstream file_handler(cloud_file_path);
-  while(file_handler >> each_value_str)
-  {
-    std::string each_value_clean_str = 
-      each_value_str.substr(0, each_value_str.find("f", 0));
 
-    float value_float = std::stof(each_value_clean_str);
+	assert(vertices_sa_[1].Position.v2 == -0.931193f);
+	assert(vertices_sa_[1].Color.v2 == 0.635294f);
 
-    vertices_[n_values_read_from_file] = value_float;
-    n_values_read_from_file++;
-  }
-  assert(n_points_ == (n_values_read_from_file)/6);
+	// vertices_ = new float[vertices_length_];
+
+	// std::string each_value_str;
+  // int n_values_read_from_file  = 0;
+
+	// std::ifstream file_handler(cloud_file_path);
+  // while(file_handler >> each_value_str)
+  // {
+  //   std::string each_value_clean_str = 
+  //     each_value_str.substr(0, each_value_str.find("f", 0));
+
+  //   float value_float = std::stof(each_value_clean_str);
+
+  //   vertices_[n_values_read_from_file] = value_float;
+  //   n_values_read_from_file++;
+  // }
+  // assert(n_points_ == (n_values_read_from_file)/6);
 }
 
 RosMLServer::~RosMLServer()
 {
 	delete[] vertices_;
+	delete[] vertices_sa_;
 }
 
 bool RosMLServer::OnClientConnect(std::shared_ptr<olc::net::connection<GameMsg>> client)
@@ -188,17 +197,52 @@ void RosMLServer::Deserialize(const char* data, float vertices[], const int vert
 	}
 }
 
+void RosMLServer::ParseCloudFromFile(const std::string cloud_file_path, Vertex vertices[])
+{
+  int n_values_read_from_file  = 0;
+
+	std::ifstream file_handler(cloud_file_path);
+	std::string each_value_str;
+	// std::string each_value_clean_str;
+	float value_float;
+
+	for(int i = 0; i < n_points_; i++)
+	{
+		Vertex v;
+
+		file_handler >> each_value_str;
+		v.Position.v0 = std::stof(each_value_str);
+
+		file_handler >> each_value_str;
+		v.Position.v1 = std::stof(each_value_str);
+
+		file_handler >> each_value_str;
+		v.Position.v2 = std::stof(each_value_str);
+
+
+		file_handler >> each_value_str;
+		v.Color.v0 = std::stof(each_value_str);
+
+		file_handler >> each_value_str;
+		v.Color.v1 = std::stof(each_value_str);
+
+		file_handler >> each_value_str;
+		v.Color.v2 = std::stof(each_value_str);
+
+		vertices_sa_[i] = v;
+	}
+}
 
 int main()
 {
 	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_test.txt";
-	const int n_points = 307200;
+	const int n_points = 2;
 	RosMLServer server(cloud_file_path, n_points, 60000);
-	server.Start();
-
-	while (1)
-	{
-		server.Update(-1, true);
-	}
+	
+	// server.Start();
+	// while (1)
+	// {
+	// 	server.Update(-1, true);
+	// }
 	return 0;
 }

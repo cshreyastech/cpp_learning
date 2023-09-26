@@ -31,12 +31,13 @@ private:
   const int n_points_{0};
   int vertices_length_{0};
   size_t vertices_size_{0};
-  float* vertices_;
-
+  float* vertices_{nullptr};
+  Vertex* vertices_sa_{nullptr};
+  
 private:
   void Serialize(const char* data, float vertices[], const int vertices_length);
   void Deserialize(const char* data, float vertices[], const int vertices_length);
-
+  void ParseCloudFromFile(const std::string cloud_file_path, Vertex vertices[]);
 };
 
 #endif
