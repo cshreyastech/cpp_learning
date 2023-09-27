@@ -31,16 +31,7 @@ namespace olc
     const int vertices_length = n_points * 6;
 		const int vertices_size = vertices_length * sizeof(float);
 
-    assert(vertices[vertices_length - 1] == 0.619608f);
-
-    
-    // std::cout << "GameEngine::OnUserUpdate() - validated:" << std::endl;
-
-    // assert(vertices[vertices_length - 1] == 0.619608f);
-    // while (!glfwWindowShouldClose(window_))
-    // {
-
-    // }
+    assert(vertices[vertices_length - 1] == 0.635294f);
 
     return false;
   }
