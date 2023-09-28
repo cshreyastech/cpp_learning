@@ -2,3 +2,7 @@
 	path = networking/asio/external/snappy
 	url = https://github.com/google/snappy.git
 	branch = main
+[submodule "networking/asio/external/cereal"]
+	path = networking/asio/external/cereal
+	url = https://github.com/USCiLab/cereal.git
+	branch = master

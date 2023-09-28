@@ -78,6 +78,11 @@
     "io_context": "cpp",
     "netfwd": "cpp",
     "socket": "cpp",
-    "timer": "cpp"
+    "timer": "cpp",
+    "csetjmp": "cpp",
+    "hash_map": "cpp",
+    "hash_set": "cpp",
+    "slist": "cpp",
+    "valarray": "cpp"
   }
 }

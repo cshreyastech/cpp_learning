@@ -12,6 +12,8 @@
         "-I${workspaceFolder}/external",
         "-I${workspaceFolder}/external/snappy",
         "-I${workspaceFolder}/external/asio-1.28.1/include",
+        "-I${workspaceFolder}/external/cereal/include",
+
         "-I${workspaceFolder}/02-MMO/NetClient/include",
         "-I${workspaceFolder}/03-olcPGEX/MMO_Server/include",
         "-I${workspaceFolder}/04-ROS_ML/ROS_ML_Server/include",
