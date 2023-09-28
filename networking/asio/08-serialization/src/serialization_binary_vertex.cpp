@@ -1,60 +1,28 @@
-#include <cereal/archives/binary.hpp>
+
 #include <iostream>
 #include <vector>
 #include <stdio.h>
 
-struct Vec3
-{
-	float v0, v1, v2;	
-};
-
-struct Vertex
-{
-	Vec3 Position;
-	// Vec3 Color;
-};
-
-
+#include <cereal/archives/binary.hpp>
+#include "snappy-internal.h"
+#include "snappy-sinksource.h"
+#include "snappy.h"
 
 struct MyStruct {
-  // int intValue;
-  // double doubleValue;
-  // Vertex vertex;
-  float x;
-  float y;
-  float z;
-
-  float r;
-  float g;
-  float b;
+  float vertex[6];
 
   template <class Archive>
   void serialize(Archive& archive) {
-    // archive(intValue, doubleValue);
-    // archive(vertex);
-    archive(x, y, z, r, g, b);
+    archive(vertex);
   }
 };
 
-
-
 int main()
 {
-
-  // Vertex v;
-  // v.Position.v0 = 1.1f;
-  // v.Position.v1 = 1.2f;
-  // v.Position.v2 = 1.3f;
-
-  // v.Color.v0 = 2.1f;
-  // v.Color.v1 = 2.2f;
-  // v.Color.v2 = 2.3f;
-
-  
-  MyStruct dataToSerialize = { 1.1f, 1.2f, 1.3f, 2.1f, 2.2f, 2.3f };
-  // dataToSerialize.vertex.Position = {1.1f, 1.2f, 1.3f};
-  // dataToSerialize.vertex.Color = {2.1f, 2.2f, 2.3f};
-
+  MyStruct dataToSerialize = 
+  { 
+    1.1f, 1.2f, 1.3f, 2.1f, 2.2f, 2.3f
+  };
 
   // Serialize to a binary buffer
   std::vector<char> binaryData;
@@ -67,18 +35,39 @@ int main()
     binaryData.assign(serializedData.begin(), serializedData.end());
   }
 
+  // Compress
+  char* p_vertices_compressed = 
+    new char[snappy::MaxCompressedLength(binaryData.size())];
+
+  size_t p_vertices_compressed_length;
+
+  // auto compression_start = std::chrono::high_resolution_clock::now();
+  snappy::RawCompress(binaryData.data(), binaryData.size(), 
+    p_vertices_compressed, &p_vertices_compressed_length);
+  // Send p_vertices_compressed to client though asio as usual.
+
+  // At Client end;
+  char p_vertices[binaryData.size()];
+
+  bool raw_uncompress = 
+    snappy::RawUncompress(p_vertices_compressed, 
+      p_vertices_compressed_length,
+      p_vertices);
+
+
   MyStruct receivedStruct;
   {
-    std::istringstream iss(std::string(binaryData.begin(), binaryData.begin() + binaryData.size()));
+    // std::istringstream iss(std::string(binaryData.begin(), binaryData.begin() + binaryData.size()));
+    std::istringstream iss(p_vertices);
     cereal::BinaryInputArchive archive(iss);
     archive(receivedStruct);
   }
 
   // Use the deserialized data
   printf("receivedStruct(%f, %f, %f, %f, %f, %f)\n", 
-    receivedStruct.x, receivedStruct.y, receivedStruct.z, 
-    receivedStruct.r, receivedStruct.g, receivedStruct.b 
+    receivedStruct.vertex[0], receivedStruct.vertex[1], receivedStruct.vertex[2], 
+    receivedStruct.vertex[3], receivedStruct.vertex[4], receivedStruct.vertex[5] 
   );
-  
+
   return 0;
 }
