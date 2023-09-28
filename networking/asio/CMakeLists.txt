@@ -208,26 +208,42 @@ add_subdirectory(external/cereal)
 #   PRIVATE pthread
 #   PRIVATE snappy
 # )
-#############################################################
-set(serialization 08-serialization-json)
-add_executable(${serialization}
-  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_json.cpp
-  )
+# #############################################################
+# set(serialization 08-serialization-json)
+# add_executable(${serialization}
+#   ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_json.cpp
+#   )
   
-target_include_directories(${serialization} 
-  PRIVATE ${external_dir}
-  PRIVATE ${Snappy_SOURCE_DIR}/snappy
-  PRIVATE ${cereal_SOURCE_DIR}/include
-)
+# target_include_directories(${serialization} 
+#   PRIVATE ${external_dir}
+#   PRIVATE ${Snappy_SOURCE_DIR}/snappy
+#   PRIVATE ${cereal_SOURCE_DIR}/include
+# )
 
-target_link_libraries(${serialization} 
-  PRIVATE pthread
-  PRIVATE snappy
-)
+# target_link_libraries(${serialization} 
+#   PRIVATE pthread
+#   PRIVATE snappy
+# )
+# #############################################################
+# set(serialization 08-serialization-binary)
+# add_executable(${serialization}
+#   ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary.cpp
+#   )
+  
+# target_include_directories(${serialization} 
+#   PRIVATE ${external_dir}
+#   PRIVATE ${Snappy_SOURCE_DIR}/snappy
+#   PRIVATE ${cereal_SOURCE_DIR}/include
+# )
+
+# target_link_libraries(${serialization} 
+#   PRIVATE pthread
+#   PRIVATE snappy
+# )
 #############################################################
-set(serialization 08-serialization-binary)
+set(serialization 08_serialization_binary_vertex)
 add_executable(${serialization}
-  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary.cpp
+  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_vertex.cpp
   )
   
 target_include_directories(${serialization} 

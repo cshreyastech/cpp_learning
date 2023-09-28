@@ -12,18 +12,6 @@ struct MyStruct {
   }
 };
 
-struct Vec3
-{
-	float v0, v1, v2;	
-};
-
-struct Vertex
-{
-	Vec3 Position;
-	Vec3 Color;
-};
-
-
 
 int main()
 {
