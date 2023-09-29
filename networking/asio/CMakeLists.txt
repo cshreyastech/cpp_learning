@@ -257,3 +257,19 @@ target_link_libraries(${serialization}
   PRIVATE snappy
 )
 #############################################################
+set(serialization 08_serialization_smart_ptr)
+add_executable(${serialization}
+  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_smart_ptr.cpp
+  )
+  
+target_include_directories(${serialization} 
+  PRIVATE ${external_dir}
+  # PRIVATE ${Snappy_SOURCE_DIR}/snappy
+  PRIVATE ${cereal_SOURCE_DIR}/include
+)
+
+target_link_libraries(${serialization} 
+  PRIVATE pthread
+  # PRIVATE snappy
+)
+#############################################################

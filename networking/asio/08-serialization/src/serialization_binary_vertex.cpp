@@ -2,14 +2,18 @@
 #include <iostream>
 #include <vector>
 #include <stdio.h>
+#include <fstream>
 
 #include <cereal/archives/binary.hpp>
 #include "snappy-internal.h"
 #include "snappy-sinksource.h"
 #include "snappy.h"
 
+#define N_POINTS 7200
+#define VERTICES_LENGTH 7200 * 6
+
 struct MyStruct {
-  float vertex[6];
+  float vertex[VERTICES_LENGTH];
 
   template <class Archive>
   void serialize(Archive& archive) {
@@ -19,55 +23,54 @@ struct MyStruct {
 
 int main()
 {
-  MyStruct dataToSerialize = 
-  { 
-    1.1f, 1.2f, 1.3f, 2.1f, 2.2f, 2.3f
-  };
+  MyStruct dataToSerialize;
+
+  const std::string cloud_file_path = 
+    "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_300K1-307200.txt";
+
+  std::ifstream file_handler(cloud_file_path);
+  std::string each_value_str;
+  int n_values_read_from_file  = 0;
+  
+  while(file_handler >> each_value_str)
+  {
+  	std::string each_value_clean_str = 
+  		each_value_str.substr(0, each_value_str.find("f", 0));
+
+  	float value_float = std::stof(each_value_clean_str);
+    dataToSerialize.vertex[n_values_read_from_file] = value_float;
+  	n_values_read_from_file++;
+  }
+  assert(N_POINTS == (n_values_read_from_file)/6);
 
   // Serialize to a binary buffer
-  std::vector<char> binaryData;
-  {
-    std::ostringstream oss;
-    cereal::BinaryOutputArchive archive(oss);
-    archive(dataToSerialize);
 
-    std::string serializedData = oss.str();
-    binaryData.assign(serializedData.begin(), serializedData.end());
-  }
+  std::ostringstream oss;
+  cereal::BinaryOutputArchive archive(oss);
+  archive(dataToSerialize);
 
-  // Compress
-  char* p_vertices_compressed = 
-    new char[snappy::MaxCompressedLength(binaryData.size())];
+  std::string serializedData = oss.str();
 
-  size_t p_vertices_compressed_length;
-
-  // auto compression_start = std::chrono::high_resolution_clock::now();
-  snappy::RawCompress(binaryData.data(), binaryData.size(), 
-    p_vertices_compressed, &p_vertices_compressed_length);
-  // Send p_vertices_compressed to client though asio as usual.
+  std::string compressed_data;
+  snappy::Compress(serializedData.c_str(), serializedData.size(), &compressed_data);
 
   // At Client end;
-  char p_vertices[binaryData.size()];
-
-  bool raw_uncompress = 
-    snappy::RawUncompress(p_vertices_compressed, 
-      p_vertices_compressed_length,
-      p_vertices);
-
+  std::string decompressed_data;
+  if (snappy::Uncompress(compressed_data.c_str(), compressed_data.size(), &decompressed_data)) {
+    // Decompression succeeded
+    std::cout << "Decompression succedded" << std::endl;
+  } else {
+    // Decompression failed
+    std::cerr << "Decompression failed." << std::endl;
+  }
 
   MyStruct receivedStruct;
   {
-    // std::istringstream iss(std::string(binaryData.begin(), binaryData.begin() + binaryData.size()));
-    std::istringstream iss(p_vertices);
+    std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
     cereal::BinaryInputArchive archive(iss);
     archive(receivedStruct);
   }
 
-  // Use the deserialized data
-  printf("receivedStruct(%f, %f, %f, %f, %f, %f)\n", 
-    receivedStruct.vertex[0], receivedStruct.vertex[1], receivedStruct.vertex[2], 
-    receivedStruct.vertex[3], receivedStruct.vertex[4], receivedStruct.vertex[5] 
-  );
-
+  assert(receivedStruct.vertex[VERTICES_LENGTH - 1] == 0.619608f);
   return 0;
 }
