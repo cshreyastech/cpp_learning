@@ -27,6 +27,9 @@
         "-I${workspaceFolder}/07-ros_ml/ros_ml_server/include",
         "-I${workspaceFolder}/07-ros_ml/ros_ml_client/include",
 
+        "-I${workspaceFolder}/09-ros_ml/ros_ml_server/include",
+        "-I${workspaceFolder}/09-ros_ml/ros_ml_client/include",
+
         "-o",
         "${fileDirname}/build/${fileBasenameNoExtension}",
         "-lglfw",

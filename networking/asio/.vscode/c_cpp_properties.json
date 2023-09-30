@@ -20,7 +20,10 @@
                 "${workspaceFolder}/06-ros_ml/ros_ml_client/include",
 
                 "${workspaceFolder}/07-ros_ml/ros_ml_server/include",
-                "${workspaceFolder}/07-ros_ml/ros_ml_client/include"
+                "${workspaceFolder}/07-ros_ml/ros_ml_client/include",
+
+                "${workspaceFolder}/09-ros_ml/ros_ml_server/include",
+                "${workspaceFolder}/09-ros_ml/ros_ml_client/include"
             ],
             "defines": [],
             "compilerPath": "/usr/lib/ccache/g++-9",
