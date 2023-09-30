@@ -89,12 +89,12 @@
 		// 	]
 		// },
 		{
-			"name": "08_serialization_smart_ptr",
+			"name": "08_serialization_binary_vertex",
 			"type": "cppdbg",
 			"request": "launch",
 			// Resolved by CMake Tools:
 			// "program": "${command:cmake.launchTargetPath}",
-			"program": "${workspaceRoot}/build/08_serialization_smart_ptr",
+			"program": "${workspaceRoot}/build/08_serialization_binary_vertex",
 			"args": [],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",

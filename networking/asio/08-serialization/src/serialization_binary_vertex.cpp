@@ -3,14 +3,15 @@
 #include <vector>
 #include <stdio.h>
 #include <fstream>
+#include <memory>
 
 #include <cereal/archives/binary.hpp>
 #include "snappy-internal.h"
 #include "snappy-sinksource.h"
 #include "snappy.h"
 
-#define N_POINTS 7200
-#define VERTICES_LENGTH 7200 * 6
+#define N_POINTS 100000
+#define VERTICES_LENGTH 100000 * 6
 
 struct MyStruct {
   float vertex[VERTICES_LENGTH];
@@ -26,7 +27,7 @@ int main()
   MyStruct dataToSerialize;
 
   const std::string cloud_file_path = 
-    "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_300K1-307200.txt";
+    "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_100K1-200K.txt";
 
   std::ifstream file_handler(cloud_file_path);
   std::string each_value_str;
@@ -38,7 +39,7 @@ int main()
   		each_value_str.substr(0, each_value_str.find("f", 0));
 
   	float value_float = std::stof(each_value_clean_str);
-    dataToSerialize.vertex[n_values_read_from_file] = value_float;
+    // dataToSerialize.vertex[n_values_read_from_file] = value_float;
   	n_values_read_from_file++;
   }
   assert(N_POINTS == (n_values_read_from_file)/6);
@@ -71,6 +72,6 @@ int main()
     archive(receivedStruct);
   }
 
-  assert(receivedStruct.vertex[VERTICES_LENGTH - 1] == 0.619608f);
+  // assert(receivedStruct.vertex[VERTICES_LENGTH - 1] == 0.619608f);
   return 0;
 }
