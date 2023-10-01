@@ -1,5 +1,5 @@
-#ifndef ROS_ML_SERVER_H
-#define ROS_ML_SERVER_H
+#ifndef ROS_ML_CLIENT_H
+#define ROS_ML_CLIENT_H
 
 #include <iostream>
 #include <unordered_map>
@@ -23,7 +23,7 @@ protected:
 	bool OnClientConnect(std::shared_ptr<olc::net::connection<GameMsg>> client) override;
   void OnClientValidated(std::shared_ptr<olc::net::connection<GameMsg>> client) override;
   void OnClientDisconnect(std::shared_ptr<olc::net::connection<GameMsg>> client) override;
-  void OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> client, olc::net::message<GameMsg>& msg) override;
+  void OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> client, olc::net::message<GameMsg>& msg);
 
 private:
   std::unordered_map<uint32_t, sPlayerDescription> m_mapPlayerRoster_;
@@ -31,8 +31,13 @@ private:
   const int n_points_{0};
   int vertices_length_{0};
   size_t vertices_size_{0};
-  std::string cloud_file_path_;
-
+  float* vertices_{nullptr};
+  // Vertex* vertices_sa_{nullptr};
+  
+private:
+  void Serialize(const char* data, float vertices[], const int vertices_length);
+  void Deserialize(const char* data, float vertices[], const int vertices_length);
+  void ParseCloudFromFile(const std::string cloud_file_path, Vertex vertices[]);
 };
 
 #endif

@@ -19,6 +19,8 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
+// #include "glad/glad.h"
+#include <GLFW/glfw3.h>
 #include <memory>
 #include <cassert>
 #include <signal.h>
@@ -36,7 +38,6 @@ namespace olc
     olc::rcode Construct(int32_t screen_w, int32_t screen_h);
     olc::rcode Start();
 
-    void PublishCoud(float vertices[], const int n_points);
   public: // User override interface
   // Called once on application startup, use to load your resources
   virtual bool OnUserCreate();
@@ -48,9 +49,10 @@ namespace olc
   public: // Branding
 		std::string sAppName;
 		int n_points;
+    float* vertices;
 
   private:
-    // GLFWwindow* window_;
+    GLFWwindow* window_;
   }; 
 
 }

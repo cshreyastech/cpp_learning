@@ -5,9 +5,11 @@ project(cpp_learning)
 
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread -std=c++2a -DMINIGLOG=ON")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++2a -DMINIGLOG=ON")
-# set(asio_header_dir "${PROJECT_SOURCE_DIR}/external/asio-1.18.2/include")
+add_subdirectory(external/cereal)
+add_subdirectory(external/snappy)
+
 set(asio_header_dir "${PROJECT_SOURCE_DIR}/external/asio-1.28.1/include")
-set(external_dir "${PROJECT_SOURCE_DIR}/external")
+# set(external_dir "${PROJECT_SOURCE_DIR}/external")
 
 # add_executable(SimpleExampleSync ${PROJECT_SOURCE_DIR}/01-SimpleExample/src/SimpleExampleSync.cpp)
 # target_include_directories(SimpleExampleSync 
@@ -96,10 +98,10 @@ set(target_common_libraries
 
 # target_link_libraries(${ros_ml_client} ${target_common_libraries})
 ###################################################
-set(SNAPPY_BUILD_BENCHMARKS OFF CACHE BOOL "")
-set(SNAPPY_BUILD_TESTS OFF CACHE BOOL "")
-add_subdirectory(external/snappy)
-add_subdirectory(external/cereal)
+# set(SNAPPY_BUILD_BENCHMARKS OFF CACHE BOOL "")
+# set(SNAPPY_BUILD_TESTS OFF CACHE BOOL "")
+# add_subdirectory(external/snappy)
+# add_subdirectory(external/cereal)
 
 # set(ros_ml_client_header_dir "${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_client/include")
 # set(ros_ml_server_header_dir "${PROJECT_SOURCE_DIR}/05-ros_ml/ros_ml_server/include")
@@ -136,7 +138,7 @@ add_subdirectory(external/cereal)
 # )
 
 # target_link_libraries(${ros_ml_client} ${target_common_libraries})
-# #############################################################
+#############################################################
 # set(ros_ml_client_header_dir "${PROJECT_SOURCE_DIR}/06-ros_ml/ros_ml_client/include")
 # set(ros_ml_server_header_dir "${PROJECT_SOURCE_DIR}/06-ros_ml/ros_ml_server/include")
 

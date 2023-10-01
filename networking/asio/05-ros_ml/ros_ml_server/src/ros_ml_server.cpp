@@ -152,19 +152,19 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 
 			const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
-			// sPlayerDescription *desc_to_client = new sPlayerDescription();
-			// desc_to_client = (sPlayerDescription*)malloc(data_size);
+
 			sPlayerDescription *desc_to_client = 
 				reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * p_vertices_compressed_length - 1]);
-			// desc_to_client = (sPlayerDescription*)malloc(data_size);
 
 
 			desc_to_client->p_vertices_compressed_length = p_vertices_compressed_length;
 			desc_to_client->nUniqueID = desc_from_client.nUniqueID;
 			desc_to_client->n_points = n_points_;
+
 			memcpy(&desc_to_client->p_vertices_compressed, 
 				p_vertices_compressed, p_vertices_compressed_length);
 			WriteMessage(msg, *desc_to_client, data_size);
+
 			MessageAllClients(msg);
 
 
@@ -234,7 +234,7 @@ void RosMLServer::Deserialize(const char* data, float vertices[], const int vert
 int main()
 {
 	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_test.txt";
-	const int n_points = 2;
+	const int n_points = 14;
 	RosMLServer server(cloud_file_path, n_points, 60000);
 	
 	server.Start();

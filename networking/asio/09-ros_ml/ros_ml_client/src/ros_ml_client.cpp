@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
-#include <cassert>
 
 RosMLClient::RosMLClient() : olc::GameEngine() , olc::net::client_interface<GameMsg>()
 {
@@ -14,6 +13,7 @@ RosMLClient::RosMLClient() : olc::GameEngine() , olc::net::client_interface<Game
 RosMLClient::~RosMLClient()
 {
 	std::cout << "inside ~RosMLClient()\n";
+	// delete[] vertices;
 }
 
 bool RosMLClient::OnUserCreate()
@@ -90,14 +90,49 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 				case(GameMsg::Game_UpdatePlayer):
 				{
-					sPlayerDescription desc;
-					msg >> desc;
-					mapObjects_.insert_or_assign(desc.nUniqueID, desc);
-					
-					// const int n_points = desc.n_points;
-					// const int vertices_length = n_points * 6;
-					// assert(desc.vertices[vertices_length - 1] == 0.031373f);
-					
+					size_t* q = (size_t*)msg.body.data();
+					size_t p_vertices_compressed_length = *q;
+
+					const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
+					sPlayerDescription *desc_from_server = new sPlayerDescription();
+					desc_from_server = (sPlayerDescription*)malloc(data_size);
+					// sPlayerDescription *desc_from_server = 
+					// reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * p_vertices_compressed_length - 1]);
+
+
+					ReadMessage(msg, *desc_from_server, data_size);
+					sPlayerDescription desc_from_server_stack;
+
+					desc_from_server_stack.p_vertices_compressed_length = desc_from_server->p_vertices_compressed_length;
+					desc_from_server_stack.nUniqueID = desc_from_server->nUniqueID;
+					desc_from_server_stack.n_points = desc_from_server->n_points;
+					desc_from_server_stack.data_from_ml = desc_from_server->data_from_ml;
+					desc_from_server_stack.cloud_set_for_client = desc_from_server->cloud_set_for_client;
+					desc_from_server_stack.cloud_set_for_client = desc_from_server->cloud_set_for_client;
+
+					// desc_from_server->cloud_set_for_client = true;
+					mapObjects_.insert_or_assign(desc_from_server->nUniqueID, desc_from_server_stack);
+	
+					const int n_points = desc_from_server->n_points;
+					const int vertices_length = n_points * 6;
+					const int vertices_size = vertices_length * sizeof(float);
+
+					char p_vertices[vertices_size];
+
+					bool raw_uncompress = 
+						snappy::RawUncompress(desc_from_server->p_vertices_compressed, 
+							p_vertices_compressed_length,
+							p_vertices);
+
+					vertices = new float[vertices_length];
+					// float vertices[vertices_length];
+					Deserialize(p_vertices, vertices, vertices_length);
+
+
+
+					// assert(vertices[vertices_length - 1] == 0.619608f);
+
+					delete[] desc_from_server;
 					break;
 				}
 			}
@@ -109,31 +144,50 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 		return true;
 	}
 
-	const int n_points = mapObjects_[nPlayerID_].n_points;
-	const int vertices_length = n_points * 6;
-	PublishCoud(mapObjects_[nPlayerID_].vertices, n_points);
 
-	// std::cout 
-	// 	<< "mapObjects_[nPlayerID_].vertices[vertices_length - 1] 0.031373f:" 
-	// 	<< mapObjects_[nPlayerID_].vertices[vertices_length - 1] 
-	// 	<< std::endl;
+	if(mapObjects_[nPlayerID_].cloud_set_for_client)
+	{
+		n_points =  mapObjects_[nPlayerID_].n_points;
+		// const int vertices_length = n_points * 6;
+		// const int vertices_size = vertices_length * sizeof(float);
 
-	// assert(mapObjects_[nPlayerID_].vertices[vertices_length - 1] == 0.031373f);
+		// assert(vertices[vertices_length - 1] == 0.031373f);
+		// assert(vertices[vertices_length - 1] == 0.619608f);
+		GameEngine::OnUserUpdate(0.0f);		
+	}
+
+
+	// Get head and eye pose from ML and send it back to server
+	mapObjects_[nPlayerID_].data_from_ml = 1.001f;
+
 
 	// Send player description
 	olc::net::message<GameMsg> msg;
 	msg.header.id = GameMsg::Game_UpdatePlayer;
 	msg << mapObjects_[nPlayerID_];
 
-
 	Send(msg);
-
 	return true;
+}
+
+void RosMLClient::Deserialize(const char* data, float vertices[], const int vertices_length)
+{
+  float *q = (float*)data;
+  for(int i = 0; i < vertices_length; i++)
+  {
+    vertices[i] = *q; q++;
+  }
 }
 
 
 int main(void)
 {
+	// struct sigaction sa;
+	// memset( &sa, 0, sizeof(sa) );
+	// sa.sa_handler = got_signal;
+	// sigfillset(&sa.sa_mask);
+	// sigaction(SIGINT,&sa,NULL);
+
 	RosMLClient ros_ml_client;
 	if (ros_ml_client.Construct(800, 600))
 		ros_ml_client.Start();

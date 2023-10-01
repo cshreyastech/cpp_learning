@@ -1,17 +1,42 @@
 #include "ros_ml_server/ros_ml_server.h"
-#include<cassert>
 
 RosMLServer::RosMLServer(const std::string cloud_file_path, const int n_points, uint16_t nPort) 
 	: n_points_(n_points), olc::net::server_interface<GameMsg>(nPort)
 {
 	vertices_length_ = n_points_ * 6;
   vertices_size_ = vertices_length_ * sizeof(float);
-	cloud_file_path_ = cloud_file_path;
+
+
+	// vertices_sa_ = new Vertex[n_points_];
+	// ParseCloudFromFile(cloud_file_path, vertices_sa_);
+
+
+	// assert(vertices_sa_[1].Position.v2 == -0.931193f);
+	// assert(vertices_sa_[1].Color.v2 == 0.635294f);
+
+	vertices_ = new float[vertices_length_];
+
+	std::string each_value_str;
+  int n_values_read_from_file  = 0;
+
+	std::ifstream file_handler(cloud_file_path);
+  while(file_handler >> each_value_str)
+  {
+    std::string each_value_clean_str = 
+      each_value_str.substr(0, each_value_str.find("f", 0));
+
+    float value_float = std::stof(each_value_clean_str);
+
+    vertices_[n_values_read_from_file] = value_float;
+    n_values_read_from_file++;
+  }
+  assert(n_points_ == (n_values_read_from_file)/6);
 }
 
 RosMLServer::~RosMLServer()
 {
-	// delete[] vertices_;
+	delete[] vertices_;
+	// delete[] vertices_sa_;
 }
 
 bool RosMLServer::OnClientConnect(std::shared_ptr<olc::net::connection<GameMsg>> client)
@@ -50,7 +75,6 @@ void RosMLServer::OnClientDisconnect(std::shared_ptr<olc::net::connection<GameMs
 
 void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> client, olc::net::message<GameMsg>& msg)
 {
-	PROFILE_FUNCTION();
 	if (!m_vGarbageIDs_.empty())
 	{
 		for (auto pid : m_vGarbageIDs_)
@@ -108,92 +132,115 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 		{
 			// Simply bounce update to everyone except incoming client
 			// MessageAllClients(msg, client);
-			// Get new set of vector from ROS after integration
+			
+			sPlayerDescription desc_from_client;
+			msg >> desc_from_client;
 
-			sPlayerDescription desc;
-			msg >> desc;
+			char p_vertices[vertices_size_];
 
-			std::string each_value_str;
-			int n_values_read_from_file  = 0;
+			Serialize(p_vertices, vertices_, vertices_length_);
 
-			std::ifstream file_handler(cloud_file_path_);
-			while(file_handler >> each_value_str)
-			{
-				std::string each_value_clean_str = 
-					each_value_str.substr(0, each_value_str.find("f", 0));
+			// Compress
+			char* p_vertices_compressed = 
+				new char[snappy::MaxCompressedLength(vertices_size_)];
 
-				float value_float = std::stof(each_value_clean_str);
+			size_t p_vertices_compressed_length;
 
-				desc.vertices[n_values_read_from_file] = value_float;
-				n_values_read_from_file++;
-			}
-			assert(n_points_ == (n_values_read_from_file)/6);
+			// auto compression_start = std::chrono::high_resolution_clock::now();
+			snappy::RawCompress(p_vertices, vertices_size_, 
+				p_vertices_compressed, &p_vertices_compressed_length);
 
 
+			const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
 
-			msg << desc;
+			sPlayerDescription *desc_to_client = 
+				reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * p_vertices_compressed_length - 1]);
+
+
+			desc_to_client->p_vertices_compressed_length = p_vertices_compressed_length;
+			desc_to_client->nUniqueID = desc_from_client.nUniqueID;
+			desc_to_client->n_points = n_points_;
+
+			memcpy(&desc_to_client->p_vertices_compressed, 
+				p_vertices_compressed, p_vertices_compressed_length);
+			WriteMessage(msg, *desc_to_client, data_size);
+
 			MessageAllClients(msg);
 
-			// /// Validate
-			// sPlayerDescription desc_test;
-			// msg >> desc_test;
-			// std::cout << "vertices[10] = 0.133333f: " << desc_test.vertices[10] << std::endl;
-			// // assert(desc_test.vertices[11] == 0.031373f);
 
-			// ////
+			delete[] p_vertices_compressed;
 
-			
-			break;
-		}
-
-		case GameMsg::Server_GetStatus:
-		{
-			break;
-		}
-
-		case GameMsg::Server_GetPing:
-		{
-			break;
-		}
-
-		case GameMsg::Client_Accepted:
-		{
-			break;
-		}
-
-		case GameMsg::Client_AssignID:
-		{
-			break;
-		}
-
-		case GameMsg::Game_AddPlayer:
-		{
-			break;
-		}
-
-		case GameMsg::Game_RemovePlayer:
-		{
+			delete[] reinterpret_cast<char*>(desc_to_client);
+			// delete desc_to_client;
 			break;
 		}
 	}
-
 }
 
+void RosMLServer::Serialize(const char* data, float vertices[], const int vertices_length)
+{
+	float *q = (float*)data;
+	for(int i = 0; i < vertices_length; i++)
+	{
+		*q = vertices[i]; q++;
+	}
+}
+
+void RosMLServer::Deserialize(const char* data, float vertices[], const int vertices_length)
+{
+	float *q = (float*)data;
+	for(int i = 0; i < vertices_length; i++)
+	{
+		vertices[i] = *q; q++;
+	}
+}
+
+// void RosMLServer::ParseCloudFromFile(const std::string cloud_file_path, Vertex vertices[])
+// {
+//   int n_values_read_from_file  = 0;
+
+// 	std::ifstream file_handler(cloud_file_path);
+// 	std::string each_value_str;
+// 	// std::string each_value_clean_str;
+// 	float value_float;
+
+// 	for(int i = 0; i < n_points_; i++)
+// 	{
+// 		Vertex v;
+
+// 		file_handler >> each_value_str;
+// 		v.Position.v0 = std::stof(each_value_str);
+
+// 		file_handler >> each_value_str;
+// 		v.Position.v1 = std::stof(each_value_str);
+
+// 		file_handler >> each_value_str;
+// 		v.Position.v2 = std::stof(each_value_str);
+
+
+// 		file_handler >> each_value_str;
+// 		v.Color.v0 = std::stof(each_value_str);
+
+// 		file_handler >> each_value_str;
+// 		v.Color.v1 = std::stof(each_value_str);
+
+// 		file_handler >> each_value_str;
+// 		v.Color.v2 = std::stof(each_value_str);
+
+// 		vertices_sa_[i] = v;
+// 	}
+// }
 
 int main()
 {
 	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_test.txt";
 	const int n_points = 14;
-
-	Instrumentor::Get().BeginSession("Profile");
 	RosMLServer server(cloud_file_path, n_points, 60000);
+	
 	server.Start();
-
 	while (1)
 	{
 		server.Update(-1, true);
 	}
-
-	Instrumentor::Get().EndSession();
 	return 0;
 }

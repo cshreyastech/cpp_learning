@@ -1,16 +1,9 @@
-#ifndef ROS_ML_COMMON_H
-#define ROS_ML_COMMON_H
-#include <cstdint>
-#include "ros_ml_server/visual_benchmarking.h"
-#include <cereal/archives/binary.hpp>
+#pragma once
 
-#define PROFILING 1
-#if PROFILING
-  #define PROFILE_SCOPE(name) InstrumentationTimer timer##__LINE__(name)
-  #define PROFILE_FUNCTION() PROFILE_SCOPE(__PRETTY_FUNCTION__)
-#else
-  #define PROFILE_SCOPE(name)
-#endif
+#include <cstdint>
+#include "snappy-internal.h"
+#include "snappy-sinksource.h"
+#include "snappy.h"
 
 enum class GameMsg : uint32_t
 {
@@ -27,13 +20,29 @@ enum class GameMsg : uint32_t
 	Game_UpdatePlayer,
 };
 
+// https://stackoverflow.com/questions/17424731/implementing-flexible-array-members-with-templates-and-base-class
 struct sPlayerDescription
-{	
+{
+	// p_vertices_compressed_length should be the first element of the struct
+	// as this is extracted by the client for creating heap variable. 
+	size_t p_vertices_compressed_length = 0;
+	
 	uint32_t nUniqueID = 0;
 	uint32_t n_points = 0;
 
 	float data_from_ml = 0.0f; 
-	float vertices[14 * 6]; 
+	bool cloud_set_for_client = false;
+	char p_vertices_compressed[1]; // Flexible array member
 };
 
-#endif
+struct Vec3
+{
+	float v0, v1, v2;	
+};
+
+struct Vertex
+{
+	Vec3 Position;
+	Vec3 Color;
+};
+
