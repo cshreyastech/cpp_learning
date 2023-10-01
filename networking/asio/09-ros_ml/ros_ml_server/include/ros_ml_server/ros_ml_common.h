@@ -34,7 +34,7 @@ struct sPlayerDescription
 
 	float data_from_ml = 0.0f; 
 	// bool cloud_set_for_client = false;
-	float vertices[125000 * 6]; 
+	float vertices[14 * 6]; 
 };
 
 #endif

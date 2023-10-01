@@ -153,8 +153,8 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 int main()
 {
-	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_100K1-200K.txt";
-	const int n_points = 100000;
+	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_test.txt";
+	const int n_points = 14;
 
 	Instrumentor::Get().BeginSession("Profile");
 	RosMLServer server(cloud_file_path, n_points, 60000);

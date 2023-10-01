@@ -257,6 +257,22 @@ add_subdirectory(external/cereal)
 #   PRIVATE snappy
 # )
 #############################################################
+set(serialization 08_serialization_binary_vertex_struct)
+add_executable(${serialization}
+  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_vertex_struct.cpp
+  )
+  
+target_include_directories(${serialization} 
+  PRIVATE ${external_dir}
+  PRIVATE ${Snappy_SOURCE_DIR}/snappy
+  PRIVATE ${cereal_SOURCE_DIR}/include
+)
+
+target_link_libraries(${serialization} 
+  PRIVATE pthread
+  PRIVATE snappy
+)
+#############################################################
 # Compilation error
 # set(serialization 08_serialization_smart_ptr)
 # add_executable(${serialization}
@@ -274,39 +290,41 @@ add_subdirectory(external/cereal)
 #   # PRIVATE snappy
 # )
 # #############################################################
-set(ros_ml_client_header_dir "${PROJECT_SOURCE_DIR}/09-ros_ml/ros_ml_client/include")
-set(ros_ml_server_header_dir "${PROJECT_SOURCE_DIR}/09-ros_ml/ros_ml_server/include")
+# set(ros_ml_client_header_dir "${PROJECT_SOURCE_DIR}/09-ros_ml/ros_ml_client/include")
+# set(ros_ml_server_header_dir "${PROJECT_SOURCE_DIR}/09-ros_ml/ros_ml_server/include")
 
-set(ros_ml_server 09-ros_ml_server)
-add_executable(${ros_ml_server}
-  ${PROJECT_SOURCE_DIR}/09-ros_ml/ros_ml_server/src/ros_ml_server.cpp)
+# set(ros_ml_server 09-ros_ml_server)
+# add_executable(${ros_ml_server}
+#   ${PROJECT_SOURCE_DIR}/09-ros_ml/ros_ml_server/src/ros_ml_server.cpp)
   
-target_include_directories(${ros_ml_server} 
-  PRIVATE ${asio_header_dir}
-  PRIVATE ${ros_ml_server_header_dir}
-  PRIVATE ${external_dir}/snappy
-)
+# target_include_directories(${ros_ml_server} 
+#   PRIVATE ${asio_header_dir}
+#   PRIVATE ${ros_ml_server_header_dir}
+#   PRIVATE ${external_dir}/snappy
+#   PRIVATE ${cereal_SOURCE_DIR}/include
+# )
 
-target_link_libraries(${ros_ml_server} 
-  PRIVATE pthread
-  PRIVATE snappy
-)
+# target_link_libraries(${ros_ml_server} 
+#   PRIVATE pthread
+#   PRIVATE snappy
+# )
 
-set(ros_ml_client 09-ros_ml_client)
-add_executable(${ros_ml_client}
-  ${PROJECT_SOURCE_DIR}/09-ros_ml/ros_ml_client/src/game_engine.cpp
-  ${PROJECT_SOURCE_DIR}/09-ros_ml/ros_ml_client/src/ros_ml_client.cpp
-  )
+# set(ros_ml_client 09-ros_ml_client)
+# add_executable(${ros_ml_client}
+#   ${PROJECT_SOURCE_DIR}/09-ros_ml/ros_ml_client/src/game_engine.cpp
+#   ${PROJECT_SOURCE_DIR}/09-ros_ml/ros_ml_client/src/ros_ml_client.cpp
+#   )
   
-target_include_directories(${ros_ml_client} 
-  PRIVATE ${asio_header_dir}
-  PRIVATE ${ros_ml_server_header_dir}
-  PRIVATE ${ros_ml_client_header_dir}
-  PRIVATE ${external_dir}/snappy
-)
+# target_include_directories(${ros_ml_client} 
+#   PRIVATE ${asio_header_dir}
+#   PRIVATE ${ros_ml_server_header_dir}
+#   PRIVATE ${ros_ml_client_header_dir}
+#   PRIVATE ${external_dir}/snappy
+#   PRIVATE ${cereal_SOURCE_DIR}/include
+# )
 
-target_link_libraries(${ros_ml_client} 
-  PRIVATE pthread
-  PRIVATE snappy
-)
-#############################################################
+# target_link_libraries(${ros_ml_client} 
+#   PRIVATE pthread
+#   PRIVATE snappy
+# )
+# #############################################################
