@@ -146,6 +146,35 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			break;
 		}
 
+		case GameMsg::Server_GetStatus:
+		{
+			break;
+		}
+
+		case GameMsg::Server_GetPing:
+		{
+			break;
+		}
+
+		case GameMsg::Client_Accepted:
+		{
+			break;
+		}
+
+		case GameMsg::Client_AssignID:
+		{
+			break;
+		}
+
+		case GameMsg::Game_AddPlayer:
+		{
+			break;
+		}
+
+		case GameMsg::Game_RemovePlayer:
+		{
+			break;
+		}
 	}
 
 }

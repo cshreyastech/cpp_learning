@@ -23,7 +23,7 @@ protected:
 	bool OnClientConnect(std::shared_ptr<olc::net::connection<GameMsg>> client) override;
   void OnClientValidated(std::shared_ptr<olc::net::connection<GameMsg>> client) override;
   void OnClientDisconnect(std::shared_ptr<olc::net::connection<GameMsg>> client) override;
-  void OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> client, olc::net::message<GameMsg>& msg);
+  void OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> client, olc::net::message<GameMsg>& msg) override;
 
 private:
   std::unordered_map<uint32_t, sPlayerDescription> m_mapPlayerRoster_;

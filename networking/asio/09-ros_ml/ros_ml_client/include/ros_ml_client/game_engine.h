@@ -19,8 +19,6 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
-// #include "glad/glad.h"
-// #include <GLFW/glfw3.h>
 #include <memory>
 #include <cassert>
 #include <signal.h>
