@@ -37,7 +37,6 @@ private:
 private:
   void Serialize(const char* data, float vertices[], const int vertices_length);
   void Deserialize(const char* data, float vertices[], const int vertices_length);
-  // void ParseCloudFromFile(const std::string cloud_file_path, Vertex vertices[]);
 };
 
 #endif

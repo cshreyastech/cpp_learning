@@ -91,76 +91,35 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 				case(GameMsg::Game_UpdatePlayer):
 				{
 					size_t* q = (size_t*)msg.body.data();
-					size_t p_vertices_compressed_length = *q;
+					size_t point_cloud_compressed_length = *q;
 
-					std::cout << "p_vertices_compressed_length: " << p_vertices_compressed_length << 
-					std::endl;
-
-					const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
+					const size_t data_size = sizeof(sPlayerDescription) + point_cloud_compressed_length;
 					sPlayerDescription *desc_from_server = new sPlayerDescription();
 					desc_from_server = (sPlayerDescription*)malloc(data_size);
-					// sPlayerDescription *desc_from_server = 
-					// reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * p_vertices_compressed_length - 1]);
-
 
 					ReadMessage(msg, *desc_from_server, data_size);
 					sPlayerDescription desc_from_server_stack;
 
-					desc_from_server_stack.p_vertices_compressed_length = desc_from_server->p_vertices_compressed_length;
 					desc_from_server_stack.nUniqueID = desc_from_server->nUniqueID;
+					desc_from_server_stack.point_cloud_compressed_length = 
+						desc_from_server->point_cloud_compressed_length;
 					desc_from_server_stack.n_points = desc_from_server->n_points;
 					desc_from_server_stack.data_from_ml = desc_from_server->data_from_ml;
 					desc_from_server_stack.cloud_set_for_client = desc_from_server->cloud_set_for_client;
 					desc_from_server_stack.cloud_set_for_client = desc_from_server->cloud_set_for_client;
 
 
-					// At Client end;
 					std::string decompressed_data;
 					
-					if (snappy::Uncompress(desc_from_server->p_vertices_compressed, 
-						desc_from_server->p_vertices_compressed_length, &decompressed_data)) {
-						// Decompression succeeded
-						std::cout << "Decompression succedded" << std::endl;
-					} else {
-						// Decompression failed
-						std::cerr << "Decompression failed." << std::endl;
-					}
+					if (!snappy::Uncompress(desc_from_server->point_cloud_compressed, 
+						desc_from_server->point_cloud_compressed_length, &decompressed_data))
+							throw std::invalid_argument("Decompression failed.");
 
-					// PointCloud point_cloud;
-					{
-						std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
-						cereal::BinaryInputArchive archive(iss);
-						archive(point_cloud_);
-					}
-
-					// Row number 99961 in text file
-					// assert((point_cloud_.points[13].Color.v0) == 0.635294f);
-
-
-
-
-
+					std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
+					cereal::BinaryInputArchive archive(iss);
+					archive(point_cloud_);
 
 					mapObjects_.insert_or_assign(desc_from_server->nUniqueID, desc_from_server_stack);
-	
-					const int n_points = desc_from_server->n_points;
-					const int vertices_length = n_points * 6;
-					const int vertices_size = vertices_length * sizeof(float);
-
-					char p_vertices[vertices_size];
-
-					bool raw_uncompress = 
-						snappy::RawUncompress(desc_from_server->p_vertices_compressed, 
-							p_vertices_compressed_length,
-							p_vertices);
-
-					// vertices = new float[vertices_length];
-					// // float vertices[vertices_length];
-					// Deserialize(p_vertices, vertices, vertices_length);
-
-
-
-					// assert(vertices[vertices_length - 1] == 0.619608f);
 
 					delete[] desc_from_server;
 					break;
@@ -178,20 +137,10 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 	// remove this condition
 	if(mapObjects_[nPlayerID_].cloud_set_for_client)
 	{
-		n_points =  mapObjects_[nPlayerID_].n_points;
-		// const int vertices_length = n_points * 6;
-		// const int vertices_size = vertices_length * sizeof(float);
-
-		// assert(vertices[vertices_length - 1] == 0.031373f);
-		// assert(vertices[vertices_length - 1] == 0.619608f);
-		// PublishCloud(mapObjects_[nPlayerID_]., const int n_points)
-		GameEngine::PublishCloud(point_cloud_, n_points);
+		GameEngine::PublishCloud(point_cloud_, mapObjects_[nPlayerID_].n_points);
 	}
-
-
 	// Get head and eye pose from ML and send it back to server
 	mapObjects_[nPlayerID_].data_from_ml = 1.001f;
-
 
 	// Send player description
 	olc::net::message<GameMsg> msg;
@@ -201,16 +150,6 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 	Send(msg);
 	return true;
 }
-
-void RosMLClient::Deserialize(const char* data, float vertices[], const int vertices_length)
-{
-  float *q = (float*)data;
-  for(int i = 0; i < vertices_length; i++)
-  {
-    vertices[i] = *q; q++;
-  }
-}
-
 
 int main(void)
 {

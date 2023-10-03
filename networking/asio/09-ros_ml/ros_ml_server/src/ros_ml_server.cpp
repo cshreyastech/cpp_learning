@@ -133,16 +133,10 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 		}
 
 		case GameMsg::Game_UpdatePlayer:
-		{
-			// Simply bounce update to everyone except incoming client
-			// MessageAllClients(msg, client);
-			
+		{	
+			// Creating a stack sPlayerDescription to get size of compressed data
 			sPlayerDescription desc_from_client;
 			msg >> desc_from_client;
-
-			char p_vertices[vertices_size_];
-
-			// Serialize(p_vertices, vertices_, vertices_length_);
 
 			std::ostringstream oss;
 			cereal::BinaryOutputArchive archive(oss);
@@ -153,97 +147,25 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			std::string compressed_data;
 			snappy::Compress(serializedData.c_str(), serializedData.size(), &compressed_data);
 
-
-
-
 			const size_t data_size = sizeof(sPlayerDescription) + compressed_data.size();
 
 			sPlayerDescription *desc_to_client = 
 				reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * compressed_data.size() - 1]);
 
-
-			desc_to_client->p_vertices_compressed_length = compressed_data.size();
+			desc_to_client->point_cloud_compressed_length = compressed_data.size();
 			desc_to_client->nUniqueID = desc_from_client.nUniqueID;
 			desc_to_client->n_points = n_points_;
 
-			std::cout << "compressed_data.size(): " << compressed_data.size() << 
-					std::endl;
-
-			memcpy(&desc_to_client->p_vertices_compressed, 
+			memcpy(&desc_to_client->point_cloud_compressed, 
 				compressed_data.c_str(), compressed_data.size());
 			WriteMessage(msg, *desc_to_client, data_size);
-
-
-
-
-
-
-
-
-
-			// // At Client end;
-			// std::string decompressed_data;
-			// if (snappy::Uncompress(compressed_data.c_str(), compressed_data.size(), &decompressed_data)) {
-			// 	// Decompression succeeded
-			// 	std::cout << "Decompression succedded" << std::endl;
-			// } else {
-			// 	// Decompression failed
-			// 	std::cerr << "Decompression failed." << std::endl;
-			// }
-
-			// PointCloud receivedStruct;
-			// {
-			// 	std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
-			// 	cereal::BinaryInputArchive archive(iss);
-			// 	archive(receivedStruct);
-			// }
-
-			// // Row number 99961 in text file
-			// assert((receivedStruct.points[13].Color.v0) == 0.635294f);
-
-
-
-
-
-
-
-
-
-
-
-			////////////////////////////////////////////
-			// Compress
-			// char* p_vertices_compressed = 
-			// 	new char[snappy::MaxCompressedLength(vertices_size_)];
-
-			// size_t p_vertices_compressed_length;
-
-			// // auto compression_start = std::chrono::high_resolution_clock::now();
-			// snappy::RawCompress(p_vertices, vertices_size_, 
-			// 	p_vertices_compressed, &p_vertices_compressed_length);
-
-
-			// const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
-
-			// sPlayerDescription *desc_to_client = 
-			// 	reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * p_vertices_compressed_length - 1]);
-
-
-			// desc_to_client->p_vertices_compressed_length = p_vertices_compressed_length;
-			// desc_to_client->nUniqueID = desc_from_client.nUniqueID;
-			// desc_to_client->n_points = n_points_;
-
-			// memcpy(&desc_to_client->p_vertices_compressed, 
-			// 	p_vertices_compressed, p_vertices_compressed_length);
-			// WriteMessage(msg, *desc_to_client, data_size);
 
 			MessageAllClients(msg);
 
 
-			// delete[] p_vertices_compressed;
-
 			delete[] reinterpret_cast<char*>(desc_to_client);
-			// delete desc_to_client;
+			
+
 			break;
 		}
 	}
@@ -267,46 +189,11 @@ void RosMLServer::Deserialize(const char* data, float vertices[], const int vert
 	}
 }
 
-// void RosMLServer::ParseCloudFromFile(const std::string cloud_file_path, Vertex vertices[])
-// {
-//   int n_values_read_from_file  = 0;
-
-// 	std::ifstream file_handler(cloud_file_path);
-// 	std::string each_value_str;
-// 	// std::string each_value_clean_str;
-// 	float value_float;
-
-// 	for(int i = 0; i < n_points_; i++)
-// 	{
-// 		Vertex v;
-
-// 		file_handler >> each_value_str;
-// 		v.Position.v0 = std::stof(each_value_str);
-
-// 		file_handler >> each_value_str;
-// 		v.Position.v1 = std::stof(each_value_str);
-
-// 		file_handler >> each_value_str;
-// 		v.Position.v2 = std::stof(each_value_str);
-
-
-// 		file_handler >> each_value_str;
-// 		v.Color.v0 = std::stof(each_value_str);
-
-// 		file_handler >> each_value_str;
-// 		v.Color.v1 = std::stof(each_value_str);
-
-// 		file_handler >> each_value_str;
-// 		v.Color.v2 = std::stof(each_value_str);
-
-// 		vertices_sa_[i] = v;
-// 	}
-// }
 
 int main()
 {
-	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_test.txt";
-	const int n_points = 14;
+	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_0.txt";
+	const int n_points = 307200;
 	RosMLServer server(cloud_file_path, n_points, 60000);
 	
 	server.Start();

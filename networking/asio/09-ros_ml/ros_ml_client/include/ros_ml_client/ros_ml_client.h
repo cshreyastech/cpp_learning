@@ -20,16 +20,13 @@ private:
 	std::unordered_map<uint32_t, sPlayerDescription> mapObjects_;
 	uint32_t nPlayerID_ = 0;
 	bool bWaitingForConnection_{true};
-	// float* vertices;
-	// Should be the last declared variable as it as flexible array member
 	sPlayerDescription descPlayer_;
 	PointCloud point_cloud_;
 
 public:
 	bool OnUserCreate() override;
   bool OnUserUpdate(float fElapsedTime) override;
-private:
-	void Deserialize(const char* data, float vertices[], const int vertices_length);
+
 };
 
 #endif
