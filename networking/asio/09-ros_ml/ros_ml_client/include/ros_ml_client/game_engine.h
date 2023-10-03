@@ -25,6 +25,7 @@
 #include <cassert>
 #include <signal.h>
 
+#include "../../ros_ml_server/include/ros_ml_server/ros_ml_common.h"
 
 namespace olc
 {
@@ -46,13 +47,14 @@ namespace olc
   // Called once an application termination, used for clearing resources
   virtual bool OnUserDestroy();
 
+  void PublishCloud(const PointCloud point_cloud, const int n_points);
   public: // Branding
 		std::string sAppName;
 		int n_points;
-    float* vertices;
 
   private:
-    GLFWwindow* window_;
+    // GLFWwindow* window_;
+    
   }; 
 
 }

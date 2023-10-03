@@ -93,6 +93,9 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					size_t* q = (size_t*)msg.body.data();
 					size_t p_vertices_compressed_length = *q;
 
+					std::cout << "p_vertices_compressed_length: " << p_vertices_compressed_length << 
+					std::endl;
+
 					const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
 					sPlayerDescription *desc_from_server = new sPlayerDescription();
 					desc_from_server = (sPlayerDescription*)malloc(data_size);
@@ -110,7 +113,34 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					desc_from_server_stack.cloud_set_for_client = desc_from_server->cloud_set_for_client;
 					desc_from_server_stack.cloud_set_for_client = desc_from_server->cloud_set_for_client;
 
-					// desc_from_server->cloud_set_for_client = true;
+
+					// At Client end;
+					std::string decompressed_data;
+					
+					if (snappy::Uncompress(desc_from_server->p_vertices_compressed, 
+						desc_from_server->p_vertices_compressed_length, &decompressed_data)) {
+						// Decompression succeeded
+						std::cout << "Decompression succedded" << std::endl;
+					} else {
+						// Decompression failed
+						std::cerr << "Decompression failed." << std::endl;
+					}
+
+					// PointCloud point_cloud;
+					{
+						std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
+						cereal::BinaryInputArchive archive(iss);
+						archive(point_cloud_);
+					}
+
+					// Row number 99961 in text file
+					// assert((point_cloud_.points[13].Color.v0) == 0.635294f);
+
+
+
+
+
+
 					mapObjects_.insert_or_assign(desc_from_server->nUniqueID, desc_from_server_stack);
 	
 					const int n_points = desc_from_server->n_points;
@@ -124,9 +154,9 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 							p_vertices_compressed_length,
 							p_vertices);
 
-					vertices = new float[vertices_length];
-					// float vertices[vertices_length];
-					Deserialize(p_vertices, vertices, vertices_length);
+					// vertices = new float[vertices_length];
+					// // float vertices[vertices_length];
+					// Deserialize(p_vertices, vertices, vertices_length);
 
 
 
@@ -145,6 +175,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 	}
 
 
+	// remove this condition
 	if(mapObjects_[nPlayerID_].cloud_set_for_client)
 	{
 		n_points =  mapObjects_[nPlayerID_].n_points;
@@ -153,7 +184,8 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 		// assert(vertices[vertices_length - 1] == 0.031373f);
 		// assert(vertices[vertices_length - 1] == 0.619608f);
-		GameEngine::OnUserUpdate(0.0f);		
+		// PublishCloud(mapObjects_[nPlayerID_]., const int n_points)
+		GameEngine::PublishCloud(point_cloud_, n_points);
 	}
 
 
@@ -182,12 +214,6 @@ void RosMLClient::Deserialize(const char* data, float vertices[], const int vert
 
 int main(void)
 {
-	// struct sigaction sa;
-	// memset( &sa, 0, sizeof(sa) );
-	// sa.sa_handler = got_signal;
-	// sigfillset(&sa.sa_mask);
-	// sigaction(SIGINT,&sa,NULL);
-
 	RosMLClient ros_ml_client;
 	if (ros_ml_client.Construct(800, 600))
 		ros_ml_client.Start();

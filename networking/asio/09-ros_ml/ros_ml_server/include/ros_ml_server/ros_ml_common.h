@@ -4,6 +4,7 @@
 #include "snappy-internal.h"
 #include "snappy-sinksource.h"
 #include "snappy.h"
+#include <cereal/archives/binary.hpp>
 
 enum class GameMsg : uint32_t
 {
@@ -37,12 +38,31 @@ struct sPlayerDescription
 
 struct Vec3
 {
-	float v0, v1, v2;	
+  float v0, v1, v2;
+
+  template <class Archive>
+  void serialize(Archive& archive) {
+    archive(v0, v1, v2);
+  }
 };
 
-struct Vertex
+struct Point
 {
-	Vec3 Position;
-	Vec3 Color;
+  Vec3 Position;
+  Vec3 Color;
+  
+  template <class Archive>
+  void serialize(Archive& archive) {
+    archive(Position, Color);
+  }
 };
 
+struct PointCloud {
+	// number of points
+  Point points[14];
+
+  template <class Archive>
+  void serialize(Archive& archive) {
+    archive(points);
+  }
+};

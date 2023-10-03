@@ -6,37 +6,41 @@ RosMLServer::RosMLServer(const std::string cloud_file_path, const int n_points, 
 	vertices_length_ = n_points_ * 6;
   vertices_size_ = vertices_length_ * sizeof(float);
 
-
-	// vertices_sa_ = new Vertex[n_points_];
-	// ParseCloudFromFile(cloud_file_path, vertices_sa_);
-
-
-	// assert(vertices_sa_[1].Position.v2 == -0.931193f);
-	// assert(vertices_sa_[1].Color.v2 == 0.635294f);
-
-	vertices_ = new float[vertices_length_];
-
-	std::string each_value_str;
-  int n_values_read_from_file  = 0;
-
 	std::ifstream file_handler(cloud_file_path);
-  while(file_handler >> each_value_str)
-  {
-    std::string each_value_clean_str = 
-      each_value_str.substr(0, each_value_str.find("f", 0));
+	std::string each_value_str;
+	// std::string each_value_clean_str;
+	float value_float;
 
-    float value_float = std::stof(each_value_clean_str);
+	for(int i = 0; i < n_points; i++)
+	{
+		Point point;
 
-    vertices_[n_values_read_from_file] = value_float;
-    n_values_read_from_file++;
-  }
-  assert(n_points_ == (n_values_read_from_file)/6);
+		file_handler >> each_value_str;
+		point.Position.v0 = std::stof(each_value_str);
+
+		file_handler >> each_value_str;
+		point.Position.v1 = std::stof(each_value_str);
+
+		file_handler >> each_value_str;
+		point.Position.v2 = std::stof(each_value_str);
+
+
+		file_handler >> each_value_str;
+		point.Color.v0 = std::stof(each_value_str);
+
+		file_handler >> each_value_str;
+		point.Color.v1 = std::stof(each_value_str);
+
+		file_handler >> each_value_str;
+		point.Color.v2 = std::stof(each_value_str);
+
+		point_cloud_.points[i] = point;
+	}
 }
 
 RosMLServer::~RosMLServer()
 {
-	delete[] vertices_;
-	// delete[] vertices_sa_;
+	
 }
 
 bool RosMLServer::OnClientConnect(std::shared_ptr<olc::net::connection<GameMsg>> client)
@@ -138,37 +142,105 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 			char p_vertices[vertices_size_];
 
-			Serialize(p_vertices, vertices_, vertices_length_);
+			// Serialize(p_vertices, vertices_, vertices_length_);
 
-			// Compress
-			char* p_vertices_compressed = 
-				new char[snappy::MaxCompressedLength(vertices_size_)];
+			std::ostringstream oss;
+			cereal::BinaryOutputArchive archive(oss);
+			archive(point_cloud_);
 
-			size_t p_vertices_compressed_length;
+			std::string serializedData = oss.str();
 
-			// auto compression_start = std::chrono::high_resolution_clock::now();
-			snappy::RawCompress(p_vertices, vertices_size_, 
-				p_vertices_compressed, &p_vertices_compressed_length);
+			std::string compressed_data;
+			snappy::Compress(serializedData.c_str(), serializedData.size(), &compressed_data);
 
 
-			const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
+
+
+			const size_t data_size = sizeof(sPlayerDescription) + compressed_data.size();
 
 			sPlayerDescription *desc_to_client = 
-				reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * p_vertices_compressed_length - 1]);
+				reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * compressed_data.size() - 1]);
 
 
-			desc_to_client->p_vertices_compressed_length = p_vertices_compressed_length;
+			desc_to_client->p_vertices_compressed_length = compressed_data.size();
 			desc_to_client->nUniqueID = desc_from_client.nUniqueID;
 			desc_to_client->n_points = n_points_;
 
+			std::cout << "compressed_data.size(): " << compressed_data.size() << 
+					std::endl;
+
 			memcpy(&desc_to_client->p_vertices_compressed, 
-				p_vertices_compressed, p_vertices_compressed_length);
+				compressed_data.c_str(), compressed_data.size());
 			WriteMessage(msg, *desc_to_client, data_size);
+
+
+
+
+
+
+
+
+
+			// // At Client end;
+			// std::string decompressed_data;
+			// if (snappy::Uncompress(compressed_data.c_str(), compressed_data.size(), &decompressed_data)) {
+			// 	// Decompression succeeded
+			// 	std::cout << "Decompression succedded" << std::endl;
+			// } else {
+			// 	// Decompression failed
+			// 	std::cerr << "Decompression failed." << std::endl;
+			// }
+
+			// PointCloud receivedStruct;
+			// {
+			// 	std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
+			// 	cereal::BinaryInputArchive archive(iss);
+			// 	archive(receivedStruct);
+			// }
+
+			// // Row number 99961 in text file
+			// assert((receivedStruct.points[13].Color.v0) == 0.635294f);
+
+
+
+
+
+
+
+
+
+
+
+			////////////////////////////////////////////
+			// Compress
+			// char* p_vertices_compressed = 
+			// 	new char[snappy::MaxCompressedLength(vertices_size_)];
+
+			// size_t p_vertices_compressed_length;
+
+			// // auto compression_start = std::chrono::high_resolution_clock::now();
+			// snappy::RawCompress(p_vertices, vertices_size_, 
+			// 	p_vertices_compressed, &p_vertices_compressed_length);
+
+
+			// const size_t data_size = sizeof(sPlayerDescription) + p_vertices_compressed_length;
+
+			// sPlayerDescription *desc_to_client = 
+			// 	reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * p_vertices_compressed_length - 1]);
+
+
+			// desc_to_client->p_vertices_compressed_length = p_vertices_compressed_length;
+			// desc_to_client->nUniqueID = desc_from_client.nUniqueID;
+			// desc_to_client->n_points = n_points_;
+
+			// memcpy(&desc_to_client->p_vertices_compressed, 
+			// 	p_vertices_compressed, p_vertices_compressed_length);
+			// WriteMessage(msg, *desc_to_client, data_size);
 
 			MessageAllClients(msg);
 
 
-			delete[] p_vertices_compressed;
+			// delete[] p_vertices_compressed;
 
 			delete[] reinterpret_cast<char*>(desc_to_client);
 			// delete desc_to_client;
