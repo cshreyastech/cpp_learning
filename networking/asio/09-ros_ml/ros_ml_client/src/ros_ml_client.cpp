@@ -13,14 +13,12 @@ RosMLClient::RosMLClient() : olc::GameEngine() , olc::net::client_interface<Game
 RosMLClient::~RosMLClient()
 {
 	std::cout << "inside ~RosMLClient()\n";
-	// delete[] vertices;
 }
 
 bool RosMLClient::OnUserCreate()
 {
 	mapObjects_[0].nUniqueID = 0;
-	//mapObjects_[0].vPos = { 3.0f, 3.0f };
-	mapObjects_[0].n_points = 0;
+
 	if (Connect("127.0.0.1", 60000))
 	{
 		return true;
@@ -45,8 +43,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					std::cout << "Server accepted client - you're in!\n";
 					olc::net::message<GameMsg> msg;
 					msg.header.id = GameMsg::Client_RegisterWithServer;
-					// descPlayer_.vPos = { 3.0f, 3.0f };
-					descPlayer_.n_points = 0;
+
 					msg << descPlayer_;
 					Send(msg);
 					break;
@@ -55,13 +52,9 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 				case(GameMsg::Client_AssignID):
 				{
 					// Server is assigning us OUR id
-					uint32_t n_points;
-					msg >> n_points;
 					msg >> nPlayerID_;
-
 					std::cout << "Assigned Client ID = " << nPlayerID_ << "\n";
-					std::cout << "n_points = " << n_points << "\n";
-					
+
 					break;
 				}
 
@@ -103,11 +96,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					desc_from_server_stack.nUniqueID = desc_from_server->nUniqueID;
 					desc_from_server_stack.point_cloud_compressed_length = 
 						desc_from_server->point_cloud_compressed_length;
-					desc_from_server_stack.n_points = desc_from_server->n_points;
 					desc_from_server_stack.data_from_ml = desc_from_server->data_from_ml;
-					desc_from_server_stack.cloud_set_for_client = desc_from_server->cloud_set_for_client;
-					desc_from_server_stack.cloud_set_for_client = desc_from_server->cloud_set_for_client;
-
 
 					std::string decompressed_data;
 					
@@ -133,14 +122,8 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 		return true;
 	}
 
+	GameEngine::PublishCloud(to_serilize_point_cloud_.point_cloud);
 
-	// remove this condition
-	if(mapObjects_[nPlayerID_].cloud_set_for_client)
-	{
-		// GameEngine::PublishCloud(to_serilize_point_cloud_, mapObjects_[nPlayerID_].n_points);
-
-		assert((to_serilize_point_cloud_.point_cloud[mapObjects_[nPlayerID_].n_points - 1].Color.v0) == 0.619608f);
-	}
 	// Get head and eye pose from ML and send it back to server
 	mapObjects_[nPlayerID_].data_from_ml = 1.001f;
 

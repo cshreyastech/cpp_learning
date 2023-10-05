@@ -47,7 +47,7 @@ namespace olc
   // Called once an application termination, used for clearing resources
   virtual bool OnUserDestroy();
 
-  void PublishCloud(const Point point_cloud[], const int n_points);
+  void PublishCloud(const Point point_cloud[]);
   public: // Branding
 		std::string sAppName;
 

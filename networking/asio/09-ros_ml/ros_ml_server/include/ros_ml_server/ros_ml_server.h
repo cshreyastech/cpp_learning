@@ -16,7 +16,7 @@
 class RosMLServer : public olc::net::server_interface<GameMsg>
 {
 public:
-	RosMLServer(const std::string cloud_file_path, const int n_points, uint16_t nPort);
+	RosMLServer(const std::string cloud_file_path, uint16_t nPort);
  ~RosMLServer();
 
 protected:
@@ -27,11 +27,7 @@ protected:
 
 private:
   std::unordered_map<uint32_t, sPlayerDescription> m_mapPlayerRoster_;
-	std::vector<uint32_t> m_vGarbageIDs_;
-  const int n_points_{0};
-  int vertices_length_{0};
-  size_t vertices_size_{0};
-  
+	std::vector<uint32_t> m_vGarbageIDs_;  
   ToSerilizePointCloud to_serilize_point_cloud_;
   
 private:

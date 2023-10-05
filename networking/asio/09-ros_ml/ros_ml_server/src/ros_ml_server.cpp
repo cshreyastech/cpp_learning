@@ -1,17 +1,14 @@
 #include "ros_ml_server/ros_ml_server.h"
 
-RosMLServer::RosMLServer(const std::string cloud_file_path, const int n_points, uint16_t nPort) 
-	: n_points_(n_points), olc::net::server_interface<GameMsg>(nPort)
+RosMLServer::RosMLServer(const std::string cloud_file_path, uint16_t nPort) 
+	: olc::net::server_interface<GameMsg>(nPort)
 {
-	vertices_length_ = n_points_ * 6;
-  vertices_size_ = vertices_length_ * sizeof(float);
-
 	std::ifstream file_handler(cloud_file_path);
 	std::string each_value_str;
-	// std::string each_value_clean_str;
+
 	float value_float;
 
-	for(int i = 0; i < n_points; i++)
+	for(int i = 0; i < N_POINTS; i++)
 	{
 		Point point;
 
@@ -101,14 +98,12 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			sPlayerDescription desc;
 			msg >> desc;
 			desc.nUniqueID = client->GetID();
-			desc.n_points = n_points_;
 			m_mapPlayerRoster_.insert_or_assign(desc.nUniqueID, desc);
 
 			olc::net::message<GameMsg> msgSendID;
 			msgSendID.header.id = GameMsg::Client_AssignID;
 
 			msgSendID << desc.nUniqueID;
-			msgSendID << desc.n_points;
 			MessageClient(client, msgSendID);
 
 			olc::net::message<GameMsg> msgAddPlayer;
@@ -154,18 +149,13 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 			desc_to_client->point_cloud_compressed_length = compressed_data.size();
 			desc_to_client->nUniqueID = desc_from_client.nUniqueID;
-			desc_to_client->n_points = n_points_;
 
 			memcpy(&desc_to_client->point_cloud_compressed, 
 				compressed_data.c_str(), compressed_data.size());
 			WriteMessage(msg, *desc_to_client, data_size);
 
 			MessageAllClients(msg);
-
-
 			delete[] reinterpret_cast<char*>(desc_to_client);
-			
-
 			break;
 		}
 	}
@@ -193,8 +183,8 @@ void RosMLServer::Deserialize(const char* data, float vertices[], const int vert
 int main()
 {
 	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_300K1-307200.txt";
-	const int n_points = 7200;
-	RosMLServer server(cloud_file_path, n_points, 60000);
+
+	RosMLServer server(cloud_file_path, 60000);
 	
 	server.Start();
 	while (1)
