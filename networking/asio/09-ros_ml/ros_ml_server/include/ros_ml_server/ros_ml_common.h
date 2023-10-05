@@ -13,9 +13,6 @@ const int N_POINTS = 7200;
 
 enum class GameMsg : uint32_t
 {
-	Server_GetStatus,
-	Server_GetPing,
-
 	Client_Accepted,
 	Client_AssignID,
 	Client_RegisterWithServer,
