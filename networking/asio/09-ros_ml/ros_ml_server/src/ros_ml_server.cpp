@@ -34,7 +34,7 @@ RosMLServer::RosMLServer(const std::string cloud_file_path, const int n_points, 
 		file_handler >> each_value_str;
 		point.Color.v2 = std::stof(each_value_str);
 
-		point_cloud_.points[i] = point;
+		to_serilize_point_cloud_.point_cloud[i] = point;
 	}
 }
 
@@ -140,7 +140,7 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 			std::ostringstream oss;
 			cereal::BinaryOutputArchive archive(oss);
-			archive(point_cloud_);
+			archive(to_serilize_point_cloud_);
 
 			std::string serializedData = oss.str();
 
@@ -192,8 +192,8 @@ void RosMLServer::Deserialize(const char* data, float vertices[], const int vert
 
 int main()
 {
-	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_0.txt";
-	const int n_points = 307200;
+	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_300K1-307200.txt";
+	const int n_points = 7200;
 	RosMLServer server(cloud_file_path, n_points, 60000);
 	
 	server.Start();

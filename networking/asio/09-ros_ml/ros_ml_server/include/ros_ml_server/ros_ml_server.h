@@ -32,7 +32,7 @@ private:
   int vertices_length_{0};
   size_t vertices_size_{0};
   
-  PointCloud point_cloud_;
+  ToSerilizePointCloud to_serilize_point_cloud_;
   
 private:
   void Serialize(const char* data, float vertices[], const int vertices_length);

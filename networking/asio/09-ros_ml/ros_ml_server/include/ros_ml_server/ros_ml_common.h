@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ROS_ML_COMMON_H
+#define ROS_ML_COMMON_H
 
 #include <cstdint>
 #include "snappy-internal.h"
@@ -58,12 +59,14 @@ struct Point
   }
 };
 
-struct PointCloud {
+struct ToSerilizePointCloud {
 	// number of points
-  Point points[307200];
+  Point point_cloud[7200];
 
   template <class Archive>
   void serialize(Archive& archive) {
-    archive(points);
+    archive(point_cloud);
   }
 };
+
+#endif

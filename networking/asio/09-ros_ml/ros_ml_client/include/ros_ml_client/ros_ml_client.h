@@ -21,7 +21,7 @@ private:
 	uint32_t nPlayerID_ = 0;
 	bool bWaitingForConnection_{true};
 	sPlayerDescription descPlayer_;
-	PointCloud point_cloud_;
+	ToSerilizePointCloud to_serilize_point_cloud_;
 
 public:
 	bool OnUserCreate() override;

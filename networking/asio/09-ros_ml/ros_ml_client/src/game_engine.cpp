@@ -46,9 +46,9 @@ namespace olc
     return olc::rcode::OK;
   }
 
-  void GameEngine::PublishCloud(const PointCloud &point_cloud, const int n_points)
+  void GameEngine::PublishCloud(const Point point_cloud[], const int n_points)
   {
-    assert((point_cloud.points[n_points - 1].Color.v0) == 0.619608f);
+    assert((point_cloud[n_points - 1].Color.v0) == 0.619608f);
   }
 
 } // namespace olc

@@ -117,7 +117,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 					std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
 					cereal::BinaryInputArchive archive(iss);
-					archive(point_cloud_);
+					archive(to_serilize_point_cloud_);
 
 					mapObjects_.insert_or_assign(desc_from_server->nUniqueID, desc_from_server_stack);
 
@@ -137,7 +137,9 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 	// remove this condition
 	if(mapObjects_[nPlayerID_].cloud_set_for_client)
 	{
-		GameEngine::PublishCloud(point_cloud_, mapObjects_[nPlayerID_].n_points);
+		// GameEngine::PublishCloud(to_serilize_point_cloud_, mapObjects_[nPlayerID_].n_points);
+
+		assert((to_serilize_point_cloud_.point_cloud[mapObjects_[nPlayerID_].n_points - 1].Color.v0) == 0.619608f);
 	}
 	// Get head and eye pose from ML and send it back to server
 	mapObjects_[nPlayerID_].data_from_ml = 1.001f;
