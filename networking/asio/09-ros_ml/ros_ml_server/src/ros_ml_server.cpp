@@ -6,8 +6,6 @@ RosMLServer::RosMLServer(const std::string cloud_file_path, uint16_t nPort)
 	std::ifstream file_handler(cloud_file_path);
 	std::string each_value_str;
 
-	float value_float;
-
 	for(int i = 0; i < N_POINTS; i++)
 	{
 		Point point;
@@ -93,7 +91,16 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 	switch (msg.header.id)
 	{
-		case GameMsg::Client_RegisterWithServer:
+		case(GameMsg::Client_Accepted):
+		{
+			break;
+		}
+
+		case(GameMsg::Client_AssignID):
+		{
+			break;
+		}
+		case (GameMsg::Client_RegisterWithServer):
 		{
 			sPlayerDescription desc;
 			msg >> desc;
@@ -122,12 +129,21 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			break;
 		}
 
-		case GameMsg::Client_UnregisterWithServer:
+		case (GameMsg::Client_UnregisterWithServer):
 		{
 			break;
 		}
 
-		case GameMsg::Game_UpdatePlayer:
+		case(GameMsg::Game_AddPlayer):
+		{
+			break;
+		}
+
+		case(GameMsg::Game_RemovePlayer):
+		{
+			break;
+		}
+		case (GameMsg::Game_UpdatePlayer):
 		{	
 			// Creating a stack sPlayerDescription to get size of compressed data
 			sPlayerDescription desc_from_client;
@@ -144,18 +160,21 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 			const size_t data_size = sizeof(sPlayerDescription) + compressed_data.size();
 
-			sPlayerDescription *desc_to_client = 
-				reinterpret_cast<sPlayerDescription*>(new char[sizeof(sPlayerDescription) + sizeof(char) * compressed_data.size() - 1]);
-
+			std::unique_ptr<sPlayerDescription, void(*)(sPlayerDescription*)> desc_to_client(
+				reinterpret_cast<sPlayerDescription*>(new char[data_size]),
+				[](sPlayerDescription* ptr) {
+					delete[] reinterpret_cast<char*>(ptr); // Properperly deallocate the memory
+				}
+			);
 			desc_to_client->point_cloud_compressed_length = compressed_data.size();
 			desc_to_client->nUniqueID = desc_from_client.nUniqueID;
-
-			memcpy(&desc_to_client->point_cloud_compressed, 
+			memcpy(&desc_to_client->point_cloud_compressed,
 				compressed_data.c_str(), compressed_data.size());
 			WriteMessage(msg, *desc_to_client, data_size);
 
+
 			MessageAllClients(msg);
-			delete[] reinterpret_cast<char*>(desc_to_client);
+
 			break;
 		}
 	}

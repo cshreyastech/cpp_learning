@@ -189,6 +189,30 @@ namespace olc
 
 
 			template<typename DataType>
+			friend message<T>& WriteMessage_up (message<T>& msg, const DataType& data, const size_t data_size)
+			{
+				// Check that the type of the data being pushed is trivially copyable
+				static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pushed into vector");
+
+				// Cache current size of vector, as this will be the point we insert the data
+				size_t i = msg.body.size();
+
+				// Resize the vector by the size of the data being pushed
+				msg.body.resize(msg.body.size() + data_size);
+
+				// Physically copy the data into the newly allocated vector space
+				std::memcpy(msg.body.data() + i, &data, data_size);
+
+				// Recalculate the message size
+				msg.header.size = msg.size();
+
+				// Return the target message so it can be "chained"
+				return msg;
+			}
+
+
+
+			template<typename DataType>
 			friend message<T>& ReadMessage(message<T>& msg, DataType& data, const size_t data_size)
 			{
 				// Check that the type of the data being pushed is trivially copyable
@@ -704,11 +728,11 @@ namespace olc
 			}
 
 		protected:
-			// Each connection has a unique socket to a remote 
-			asio::ip::tcp::socket m_socket;
-
 			// This context is shared with the whole asio instance
 			asio::io_context& m_asioContext;
+
+			// Each connection has a unique socket to a remote 
+			asio::ip::tcp::socket m_socket;
 
 			// This queue holds all messages to be sent to the remote side
 			// of this connection

@@ -58,6 +58,16 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					break;
 				}
 
+				case(GameMsg::Client_RegisterWithServer):
+				{
+					break;
+				}
+
+				case(GameMsg::Client_UnregisterWithServer):
+				{
+					break;
+				}
+
 				case(GameMsg::Game_AddPlayer):
 				{
 					sPlayerDescription desc;
@@ -87,9 +97,14 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					size_t point_cloud_compressed_length = *q;
 
 					const size_t data_size = sizeof(sPlayerDescription) + point_cloud_compressed_length;
-					sPlayerDescription *desc_from_server = new sPlayerDescription();
-					desc_from_server = (sPlayerDescription*)malloc(data_size);
 
+					std::unique_ptr<sPlayerDescription, void(*)(sPlayerDescription*)> desc_from_server(
+						reinterpret_cast<sPlayerDescription*>(new char[data_size]),
+						[](sPlayerDescription* ptr) {
+						delete[] reinterpret_cast<char*>(ptr); // Properperly deallocate the memory
+						}
+					);
+					
 					ReadMessage(msg, *desc_from_server, data_size);
 					sPlayerDescription desc_from_server_stack;
 
@@ -110,7 +125,6 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 					mapObjects_.insert_or_assign(desc_from_server->nUniqueID, desc_from_server_stack);
 
-					delete[] desc_from_server;
 					break;
 				}
 			}

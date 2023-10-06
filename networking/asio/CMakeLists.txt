@@ -3,8 +3,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(cpp_learning)
 
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread -std=c++2a -DMINIGLOG=ON")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++2a -DMINIGLOG=ON")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread -std=c++17 -DMINIGLOG=ON")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++2a -DMINIGLOG=ON")
 add_subdirectory(external/cereal)
 add_subdirectory(external/snappy)
 
@@ -259,21 +259,21 @@ set(target_common_libraries
 #   PRIVATE snappy
 # )
 #############################################################
-set(serialization 08_serialization_binary_vertex_struct)
-add_executable(${serialization}
-  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_vertex_struct.cpp
-  )
+# set(serialization 08_serialization_binary_vertex_struct)
+# add_executable(${serialization}
+#   ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_vertex_struct.cpp
+#   )
   
-target_include_directories(${serialization} 
-  PRIVATE ${external_dir}
-  PRIVATE ${Snappy_SOURCE_DIR}/snappy
-  PRIVATE ${cereal_SOURCE_DIR}/include
-)
+# target_include_directories(${serialization} 
+#   PRIVATE ${external_dir}
+#   PRIVATE ${Snappy_SOURCE_DIR}/snappy
+#   PRIVATE ${cereal_SOURCE_DIR}/include
+# )
 
-target_link_libraries(${serialization} 
-  PRIVATE pthread
-  PRIVATE snappy
-)
+# target_link_libraries(${serialization} 
+#   PRIVATE pthread
+#   PRIVATE snappy
+# )
 #############################################################
 # Compilation error
 # set(serialization 08_serialization_smart_ptr)
