@@ -2,7 +2,6 @@
 #define ROS_ML_CLIENT_H
 
 
-// #include "../../ros_ml_server/include/ros_ml_server/ros_ml_common.h"
 #include "../../ros_ml_server/include/ros_ml_server/ros_ml_network.h"
 #include "ros_ml_client/game_engine.h"
 

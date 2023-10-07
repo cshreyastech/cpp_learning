@@ -145,18 +145,28 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 		}
 		case (GameMsg::Game_UpdatePlayer):
 		{	
+			
 			// Creating a stack sPlayerDescription to get size of compressed data
 			sPlayerDescription desc_from_client;
-			msg >> desc_from_client;
+			{
+				// Timer timer;
+				msg >> desc_from_client;
+			}
 
 			std::ostringstream oss;
-			cereal::BinaryOutputArchive archive(oss);
-			archive(to_serilize_point_cloud_);
+			{
+				// Timer timer;
+				cereal::BinaryOutputArchive archive(oss);
+				archive(to_serilize_point_cloud_);
+			}
 
 			std::string serializedData = oss.str();
 
 			std::string compressed_data;
-			snappy::Compress(serializedData.c_str(), serializedData.size(), &compressed_data);
+			{
+				Timer timer("Compress");
+				snappy::Compress(serializedData.c_str(), serializedData.size(), &compressed_data);
+			}
 
 			const size_t data_size = sizeof(sPlayerDescription) + compressed_data.size();
 
@@ -166,15 +176,24 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 					delete[] reinterpret_cast<char*>(ptr); // Properperly deallocate the memory
 				}
 			);
-			desc_to_client->point_cloud_compressed_length = compressed_data.size();
-			desc_to_client->nUniqueID = desc_from_client.nUniqueID;
-			memcpy(&desc_to_client->point_cloud_compressed,
-				compressed_data.c_str(), compressed_data.size());
-			WriteMessage(msg, *desc_to_client, data_size);
 
+			{
+				// Timer timer("Memcpy");
+				desc_to_client->point_cloud_compressed_length = compressed_data.size();
+				desc_to_client->nUniqueID = desc_from_client.nUniqueID;
+				memcpy(&desc_to_client->point_cloud_compressed,
+					compressed_data.c_str(), compressed_data.size());
+			}
+			
+			{
+				Timer timer("WriteMessage");
+				WriteMessage(msg, *desc_to_client, data_size);
+			}
 
-			MessageAllClients(msg);
-
+			{
+				Timer timer("MessageAllClients");
+				MessageAllClients(msg);
+			}
 			break;
 		}
 	}

@@ -105,7 +105,10 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 						}
 					);
 					
-					ReadMessage(msg, *desc_from_server, data_size);
+					{					
+						Timer timer("ReadMessage");
+						ReadMessage(msg, *desc_from_server, data_size);
+					}
 					sPlayerDescription desc_from_server_stack;
 
 					desc_from_server_stack.nUniqueID = desc_from_server->nUniqueID;
@@ -115,13 +118,20 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 					std::string decompressed_data;
 					
-					if (!snappy::Uncompress(desc_from_server->point_cloud_compressed, 
-						desc_from_server->point_cloud_compressed_length, &decompressed_data))
-							throw std::invalid_argument("Decompression failed.");
+					{
+						Timer timer("Uncompress");
+						if (!snappy::Uncompress(desc_from_server->point_cloud_compressed, 
+							desc_from_server->point_cloud_compressed_length, &decompressed_data))
+								throw std::invalid_argument("Decompression failed.");
+					}
+
 
 					std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
-					cereal::BinaryInputArchive archive(iss);
-					archive(to_serilize_point_cloud_);
+					{
+						Timer timer("decompress");
+						cereal::BinaryInputArchive archive(iss);
+						archive(to_serilize_point_cloud_);
+					}
 
 					mapObjects_.insert_or_assign(desc_from_server->nUniqueID, desc_from_server_stack);
 
@@ -136,7 +146,10 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 		return true;
 	}
 
-	GameEngine::PublishCloud(to_serilize_point_cloud_.point_cloud);
+	{
+		// Timer timer("PublishCloud");
+		GameEngine::PublishCloud(to_serilize_point_cloud_.point_cloud);
+	}
 
 	// Get head and eye pose from ML and send it back to server
 	mapObjects_[nPlayerID_].data_from_ml = 1.001f;

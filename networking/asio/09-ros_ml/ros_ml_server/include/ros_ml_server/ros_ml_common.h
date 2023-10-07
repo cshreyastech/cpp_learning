@@ -8,6 +8,7 @@
 #include <cereal/archives/binary.hpp>
 #include <stdexcept>
 #include <memory>
+#include "ros_ml_server/Timer.h"
 
 const int N_POINTS = 7200;
 
