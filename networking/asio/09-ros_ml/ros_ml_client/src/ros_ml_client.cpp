@@ -128,7 +128,7 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 
 					std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
 					{
-						Timer timer("decompress");
+						Timer timer("Deserialize");
 						cereal::BinaryInputArchive archive(iss);
 						archive(to_serilize_point_cloud_);
 					}

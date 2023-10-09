@@ -155,7 +155,7 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 			std::ostringstream oss;
 			{
-				// Timer timer;
+				Timer timer("Serialize");
 				cereal::BinaryOutputArchive archive(oss);
 				archive(to_serilize_point_cloud_);
 			}
