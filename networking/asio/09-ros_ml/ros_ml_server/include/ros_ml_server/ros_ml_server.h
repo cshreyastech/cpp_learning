@@ -14,6 +14,10 @@
 #include <fstream>
 #include <cassert>
 
+
+
+
+
 class RosMLServer : public olc::net::server_interface<GameMsg>
 {
 public:
@@ -24,13 +28,14 @@ protected:
 	bool OnClientConnect(std::shared_ptr<olc::net::connection<GameMsg>> client) override;
   void OnClientValidated(std::shared_ptr<olc::net::connection<GameMsg>> client) override;
   void OnClientDisconnect(std::shared_ptr<olc::net::connection<GameMsg>> client) override;
-  void OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> client, olc::net::message<GameMsg>& msg);
+  void OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> client, olc::net::message<GameMsg>& msg) override;
 
 private:
   std::unordered_map<uint32_t, sPlayerDescription> m_mapPlayerRoster_;
 	std::vector<uint32_t> m_vGarbageIDs_;  
-  ToSerilizePointCloud to_serilize_point_cloud_;
-  
+  // ToSerilizePointCloud to_serilize_point_cloud_;
+  std::string cloud_file_path_{""};
+
 private:
   void Serialize(const char* data, float vertices[], const int vertices_length);
   void Deserialize(const char* data, float vertices[], const int vertices_length);

@@ -258,23 +258,54 @@ set(target_common_libraries
 #   PRIVATE pthread
 #   PRIVATE snappy
 # )
-#############################################################
-# set(serialization 08_serialization_binary_vertex_struct)
-# add_executable(${serialization}
-#   ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_vertex_struct.cpp
-#   )
+# #############################################################
+set(serialization 08_serialization_binary_vertex_struct)
+add_executable(${serialization}
+  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_vertex_struct.cpp
+  )
   
-# target_include_directories(${serialization} 
-#   PRIVATE ${external_dir}
-#   PRIVATE ${Snappy_SOURCE_DIR}/snappy
-#   PRIVATE ${cereal_SOURCE_DIR}/include
-# )
+target_include_directories(${serialization} 
+  PRIVATE ${external_dir}
+  PRIVATE ${Snappy_SOURCE_DIR}/snappy
+  PRIVATE ${cereal_SOURCE_DIR}/include
+)
 
-# target_link_libraries(${serialization} 
-#   PRIVATE pthread
-#   PRIVATE snappy
-# )
+target_link_libraries(${serialization} 
+  PRIVATE pthread
+  PRIVATE snappy
+)
+set_target_properties(${serialization} PROPERTIES
+  CXX_STANDARD 17  # or the C++ standard you are using
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO
+)
+
+target_compile_options(${serialization} PRIVATE -O3)
 #############################################################
+set(serialization 08_serialization_binary_vertex_struct_optimized)
+add_executable(${serialization}
+  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_vertex_struct_optimized.cpp
+  )
+  
+target_include_directories(${serialization} 
+  PRIVATE ${external_dir}
+  PRIVATE ${Snappy_SOURCE_DIR}/snappy
+  PRIVATE ${cereal_SOURCE_DIR}/include
+)
+
+target_link_libraries(${serialization} 
+  PRIVATE pthread
+  PRIVATE snappy
+)
+set_target_properties(${serialization} PROPERTIES
+  CXX_STANDARD 17  # or the C++ standard you are using
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO
+)
+
+target_compile_options(${serialization} PRIVATE -O3)
+#############################################################
+
 # Compilation error
 # set(serialization 08_serialization_smart_ptr)
 # add_executable(${serialization}
@@ -311,6 +342,13 @@ target_link_libraries(${ros_ml_server}
   PRIVATE snappy
 )
 
+set_target_properties(${ros_ml_server} PROPERTIES
+  CXX_STANDARD 17  # or the C++ standard you are using
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO
+)
+target_compile_options(${ros_ml_server} PRIVATE -O3)
+
 set(ros_ml_client 09-ros_ml_client)
 add_executable(${ros_ml_client}
   ${PROJECT_SOURCE_DIR}/09-ros_ml/ros_ml_client/src/game_engine.cpp
@@ -329,4 +367,11 @@ target_link_libraries(${ros_ml_client}
   PRIVATE pthread
   PRIVATE snappy
 )
+
+set_target_properties(${ros_ml_client} PROPERTIES
+  CXX_STANDARD 17  # or the C++ standard you are using
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO
+)
+target_compile_options(${ros_ml_client} PRIVATE -O3)
 #############################################################

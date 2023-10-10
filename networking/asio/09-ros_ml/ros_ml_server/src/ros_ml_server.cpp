@@ -3,34 +3,7 @@
 RosMLServer::RosMLServer(const std::string cloud_file_path, uint16_t nPort) 
 	: olc::net::server_interface<GameMsg>(nPort)
 {
-	std::ifstream file_handler(cloud_file_path);
-	std::string each_value_str;
-
-	for(int i = 0; i < N_POINTS; i++)
-	{
-		Point point;
-
-		file_handler >> each_value_str;
-		point.Position.v0 = std::stof(each_value_str);
-
-		file_handler >> each_value_str;
-		point.Position.v1 = std::stof(each_value_str);
-
-		file_handler >> each_value_str;
-		point.Position.v2 = std::stof(each_value_str);
-
-
-		file_handler >> each_value_str;
-		point.Color.v0 = std::stof(each_value_str);
-
-		file_handler >> each_value_str;
-		point.Color.v1 = std::stof(each_value_str);
-
-		file_handler >> each_value_str;
-		point.Color.v2 = std::stof(each_value_str);
-
-		to_serilize_point_cloud_.point_cloud[i] = point;
-	}
+	cloud_file_path_ = cloud_file_path;
 }
 
 RosMLServer::~RosMLServer()
@@ -145,7 +118,40 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 		}
 		case (GameMsg::Game_UpdatePlayer):
 		{	
-			
+			ToSerilizePointCloud to_serilize_point_cloud;
+			{
+				Timer timer("Read Cloud from file");
+
+				std::ifstream file_handler(cloud_file_path_);
+				std::string each_value_str;
+
+				for(int i = 0; i < N_POINTS; i++)
+				{
+					Point point;
+
+					file_handler >> each_value_str;
+					point.Position.v0 = std::stof(each_value_str);
+
+					file_handler >> each_value_str;
+					point.Position.v1 = std::stof(each_value_str);
+
+					file_handler >> each_value_str;
+					point.Position.v2 = std::stof(each_value_str);
+
+
+					file_handler >> each_value_str;
+					point.Color.v0 = std::stof(each_value_str);
+
+					file_handler >> each_value_str;
+					point.Color.v1 = std::stof(each_value_str);
+
+					file_handler >> each_value_str;
+					point.Color.v2 = std::stof(each_value_str);
+
+					to_serilize_point_cloud.point_cloud[i] = point;
+				}
+			}
+
 			// Creating a stack sPlayerDescription to get size of compressed data
 			sPlayerDescription desc_from_client;
 			{
@@ -157,7 +163,7 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			{
 				Timer timer("Serialize");
 				cereal::BinaryOutputArchive archive(oss);
-				archive(to_serilize_point_cloud_);
+				archive(to_serilize_point_cloud);
 			}
 
 			std::string serializedData = oss.str();

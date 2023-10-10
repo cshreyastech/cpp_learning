@@ -21,4 +21,6 @@ add_executable(62-threads ${source_dir}/62-threads.cpp)
 target_link_libraries(62-threads pthread)
 
 add_executable(74-benchmarking ${source_dir}/74-benchmarking.cpp)
+add_executable(80-faseter_string ${source_dir}/80-faseter_string.cpp)
+add_executable(80-faseter_string_v2 ${source_dir}/80-faseter_string_v2.cpp)
 add_executable(81-visual_benchmarking ${source_dir}/81-visual_benchmarking.cpp)

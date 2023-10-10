@@ -11,6 +11,10 @@
 #include "snappy.h"
 #include <stdio.h>
 #include <chrono>
+#include <memory>
+#include <vector>
+
+#define N_POINTS 100000
 
 class Timer
 {
@@ -43,8 +47,6 @@ private:
   std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimePoint;
   std::string caption_{""};
 };
-
-#define N_POINTS 100000
 
 static uint32_t s_AllocCount = 0;
 void* operator new(size_t size)
@@ -83,6 +85,43 @@ struct MyStruct {
     archive(vertex);
   }
 };
+
+
+std::unique_ptr<char[]> CompressData(const char* data, size_t data_size, size_t& compressed_size)
+{
+  size_t max_compressed_size = snappy::MaxCompressedLength(data_size);
+
+  std::unique_ptr<char[]> compressed_buffer(new char[max_compressed_size]);
+
+  snappy::RawCompress(data, data_size, compressed_buffer.get(), &compressed_size);
+  if(!snappy::IsValidCompressedBuffer(compressed_buffer.get(), compressed_size))
+  {
+    std::cerr << "Compression failed!" << std::endl;
+
+    return nullptr;
+  }
+
+  return compressed_buffer;
+} 
+
+
+// std::unique_ptr<char[]> DecompressData(const std::vector<char>& compressed_data, size_t uncompressed_size) 
+std::unique_ptr<char[]> DecompressData(const char* compressed_data, size_t compressed_size, size_t uncompressed_size) 
+{
+  std::unique_ptr<char[]> uncompressed_buffer(new char[uncompressed_size]);
+
+  // Attempt to decompress the data
+  // if (snappy::RawUncompress(compressed_data.data(), compressed_data.size(), uncompressed_buffer.get())) {
+  if (!snappy::RawUncompress(compressed_data, compressed_size, uncompressed_buffer.get())) 
+  {
+    std::cerr << "Decompression failed!" << std::endl;
+    return nullptr;
+  }
+
+  return uncompressed_buffer;
+}
+
+
 
 int main()
 { 
@@ -128,30 +167,29 @@ int main()
   
 
   std::string serializedData = oss.str();
-
-  std::string compressed_data;
+  size_t compresssed_size = 0;
+  std::unique_ptr<char[]> compressed_buffer;
   {
-    Timer timer("snappy::Compress");
-    snappy::Compress(serializedData.c_str(), serializedData.size(), &compressed_data);
+    Timer timer("snappy::RawCompress");
+    compressed_buffer = 
+      CompressData(serializedData.c_str(), (size_t)serializedData.size(), compresssed_size);
   }
 
   // At Client end;
-  std::string decompressed_data;
+
+  std::unique_ptr<char[]> uncompressed_buffer(new char[serializedData.size()]);
   {
     Timer timer("snappy::Uncompress");
-    if (snappy::Uncompress(compressed_data.c_str(), compressed_data.size(), &decompressed_data)) {
-      // Decompression succeeded
-      std::cout << "Decompression succedded" << std::endl;
-    } else {
-      // Decompression failed
-      std::cerr << "Decompression failed." << std::endl;
-    }
+    uncompressed_buffer = DecompressData(compressed_buffer.get(), compresssed_size, (size_t)(serializedData.size()));
   }
 
   MyStruct receivedStruct;
   {
     Timer timer("cereal::BinaryInputArchive");
-    std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
+    // std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
+    std::istringstream iss(std::string(uncompressed_buffer.get(), 
+      uncompressed_buffer.get() + serializedData.size()));
+
     cereal::BinaryInputArchive archive(iss);
     archive(receivedStruct);
   }
