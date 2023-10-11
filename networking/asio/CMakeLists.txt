@@ -259,9 +259,9 @@ set(target_common_libraries
 #   PRIVATE snappy
 # )
 # #############################################################
-set(serialization 08_serialization_binary_vertex_struct)
+set(serialization 08_serialization_binary_compress)
 add_executable(${serialization}
-  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_vertex_struct.cpp
+  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_compress.cpp
   )
   
 target_include_directories(${serialization} 
@@ -282,9 +282,9 @@ set_target_properties(${serialization} PROPERTIES
 
 target_compile_options(${serialization} PRIVATE -O3)
 #############################################################
-set(serialization 08_serialization_binary_vertex_struct_optimized)
+set(serialization 08_serialization_binary_vertex_struct_uniqure_ptr)
 add_executable(${serialization}
-  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_vertex_struct_optimized.cpp
+  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_vertex_struct_uniqure_ptr.cpp
   )
   
 target_include_directories(${serialization} 
@@ -305,7 +305,52 @@ set_target_properties(${serialization} PROPERTIES
 
 target_compile_options(${serialization} PRIVATE -O3)
 #############################################################
+set(serialization 08_serialization_binary_rawcompress)
+add_executable(${serialization}
+  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_rawcompress.cpp
+  )
+  
+target_include_directories(${serialization} 
+  PRIVATE ${external_dir}
+  PRIVATE ${Snappy_SOURCE_DIR}/snappy
+  PRIVATE ${cereal_SOURCE_DIR}/include
+)
 
+target_link_libraries(${serialization} 
+  PRIVATE pthread
+  PRIVATE snappy
+)
+set_target_properties(${serialization} PROPERTIES
+  CXX_STANDARD 17  # or the C++ standard you are using
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO
+)
+
+target_compile_options(${serialization} PRIVATE -O3)
+#############################################################
+set(serialization 08_serialization_binary_optimized)
+add_executable(${serialization}
+  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_binary_optimized.cpp
+  )
+  
+target_include_directories(${serialization} 
+  PRIVATE ${external_dir}
+  PRIVATE ${Snappy_SOURCE_DIR}/snappy
+  PRIVATE ${cereal_SOURCE_DIR}/include
+)
+
+target_link_libraries(${serialization} 
+  PRIVATE pthread
+  PRIVATE snappy
+)
+set_target_properties(${serialization} PROPERTIES
+  CXX_STANDARD 17  # or the C++ standard you are using
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO
+)
+
+# target_compile_options(${serialization} PRIVATE -O3)
+#############################################################
 # Compilation error
 # set(serialization 08_serialization_smart_ptr)
 # add_executable(${serialization}
