@@ -10,7 +10,21 @@
 #include <memory>
 #include "ros_ml_server/Timer.h"
 
-const int N_POINTS = 7200;
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
+
+// Endoscope to eye or head transformation
+struct T_ML_ROS
+{
+  glm::quat Q_EC_HEAD;
+  glm::vec3 P_EC_HEAD;
+
+  glm::quat Q_EC_FIX;
+  glm::vec3 P_EC_FIX;
+};
+
+const int N_POINTS = 100000;
 
 enum class GameMsg : uint32_t
 {
@@ -21,7 +35,7 @@ enum class GameMsg : uint32_t
 
 	Game_AddPlayer,
 	Game_RemovePlayer,
-	Game_UpdatePlayer,
+	Game_UpdatePlayer
 };
 
 struct sPlayerDescription
@@ -31,7 +45,14 @@ struct sPlayerDescription
 	size_t point_cloud_compressed_length = 0;	
 	uint32_t nUniqueID = 0;
 
-	float data_from_ml = 0.0f; 
+  T_ML_ROS t_ml_ros;
+  // glm::quat Q_EC_HEAD;
+  // glm::vec3 P_EC_HEAD;
+
+  // glm::quat Q_EC_FIX;
+  // glm::vec3 P_EC_FIX;
+
+  // float pose_from_client = 0;
 	char point_cloud_compressed[1]; // Flexible array member
 };
 

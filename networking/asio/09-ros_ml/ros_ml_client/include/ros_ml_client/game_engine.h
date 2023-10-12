@@ -50,6 +50,8 @@ namespace olc
   void PublishCloud(const Point point_cloud[]);
   public: // Branding
 		std::string sAppName;
+    float pose;
+    T_ML_ROS t_ml_ros;
 
   private:
     // GLFWwindow* window_;

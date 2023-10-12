@@ -60,8 +60,6 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 		m_vGarbageIDs_.clear();
 	}
 
-
-
 	switch (msg.header.id)
 	{
 		case(GameMsg::Client_Accepted):
@@ -83,6 +81,7 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			olc::net::message<GameMsg> msgSendID;
 			msgSendID.header.id = GameMsg::Client_AssignID;
 
+			
 			msgSendID << desc.nUniqueID;
 			MessageClient(client, msgSendID);
 
@@ -120,7 +119,7 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 		{	
 			ToSerilizePointCloud to_serilize_point_cloud;
 			{
-				Timer timer("Read Cloud from file");
+			// 	Timer timer("Read Cloud from file");
 
 				std::ifstream file_handler(cloud_file_path_);
 				std::string each_value_str;
@@ -157,11 +156,26 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			{
 				// Timer timer;
 				msg >> desc_from_client;
+				// std::cout << "desc_from_client.pose_from_client: " << desc_from_client.pose_from_client << std::endl;
+		
+				T_ML_ROS t_ml_ros = desc_from_client.t_ml_ros;
+
+				printf("Q_EC_HEAD(%f, %f, %f, %f), P_EC_HEAD(%f, %f, %f)\n", 
+					t_ml_ros.Q_EC_HEAD.x, t_ml_ros.Q_EC_HEAD.y, t_ml_ros.Q_EC_HEAD.z, t_ml_ros.Q_EC_HEAD.w,
+					t_ml_ros.P_EC_HEAD.x, t_ml_ros.P_EC_HEAD.y, t_ml_ros.P_EC_HEAD.z
+				);
+
+				printf("Q_EC_FIX(%f, %f, %f, %f), P_EC_FIX(%f, %f, %f)\n", 
+					t_ml_ros.Q_EC_FIX.x, t_ml_ros.Q_EC_FIX.y, t_ml_ros.Q_EC_FIX.z, t_ml_ros.Q_EC_FIX.w,
+					t_ml_ros.P_EC_FIX.x, t_ml_ros.P_EC_FIX.y, t_ml_ros.P_EC_FIX.z
+				);
+
 			}
+
 
 			std::ostringstream oss;
 			{
-				Timer timer("Serialize");
+				// Timer timer("Serialize");
 				cereal::BinaryOutputArchive archive(oss);
 				archive(to_serilize_point_cloud);
 			}
@@ -170,7 +184,7 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 
 			std::string compressed_data;
 			{
-				Timer timer("Compress");
+			// 	Timer timer("Compress");
 				snappy::Compress(serializedData.c_str(), serializedData.size(), &compressed_data);
 			}
 
@@ -192,41 +206,24 @@ void RosMLServer::OnMessage(std::shared_ptr<olc::net::connection<GameMsg>> clien
 			}
 			
 			{
-				Timer timer("WriteMessage");
+				// Timer timer("WriteMessage");
 				WriteMessage(msg, *desc_to_client, data_size);
 			}
 
 			{
-				Timer timer("MessageAllClients");
+				// Timer timer("MessageAllClients");
 				MessageAllClients(msg);
 			}
+
 			break;
 		}
-	}
-}
-
-void RosMLServer::Serialize(const char* data, float vertices[], const int vertices_length)
-{
-	float *q = (float*)data;
-	for(int i = 0; i < vertices_length; i++)
-	{
-		*q = vertices[i]; q++;
-	}
-}
-
-void RosMLServer::Deserialize(const char* data, float vertices[], const int vertices_length)
-{
-	float *q = (float*)data;
-	for(int i = 0; i < vertices_length; i++)
-	{
-		vertices[i] = *q; q++;
 	}
 }
 
 
 int main()
 {
-	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_300K1-307200.txt";
+	const std::string cloud_file_path = "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_1-100K.txt";
 
 	RosMLServer server(cloud_file_path, 60000);
 	

@@ -7,16 +7,11 @@
 #include "ros_ml_server/ros_ml_common.h"
 #include "ros_ml_server/ros_ml_network.h"
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <fstream>
 #include <cassert>
-
-
-
-
 
 class RosMLServer : public olc::net::server_interface<GameMsg>
 {
@@ -36,9 +31,6 @@ private:
   // ToSerilizePointCloud to_serilize_point_cloud_;
   std::string cloud_file_path_{""};
 
-private:
-  void Serialize(const char* data, float vertices[], const int vertices_length);
-  void Deserialize(const char* data, float vertices[], const int vertices_length);
 };
 
 #endif
