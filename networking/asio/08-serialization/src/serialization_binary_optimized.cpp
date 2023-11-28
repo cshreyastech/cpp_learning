@@ -1,19 +1,20 @@
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <thread>
+#include <mutex>
+#include <cereal/archives/binary.hpp>
 
 #include <iostream>
-#include <vector>
 #include <stdio.h>
 #include <fstream>
 #include <memory>
 
-#include <cereal/archives/binary.hpp>
-#include "snappy-internal.h"
-#include "snappy-sinksource.h"
-#include "snappy.h"
-#include <stdio.h>
-#include <chrono>
-#include <memory>
-#include <vector>
-#include <future>
+// #include "snappy-internal.h"
+// #include "snappy-sinksource.h"
+// #include "snappy.h"
+// #include <chrono>
+#include <cassert>
 
 #define N_POINTS 100000
 
@@ -49,13 +50,14 @@ private:
   std::string caption_{""};
 };
 
-static uint32_t s_AllocCount = 0;
-void* operator new(size_t size)
-{
-  s_AllocCount++;
-  // std::cout << "Allocating " << size << " bytes\n";
-  return malloc(size);
-}
+
+
+
+
+
+
+std::mutex archiveMutex; // Mutex to synchronize access to BinaryOutputArchive
+std::string resultString; // String to store the serialized data
 
 struct Vec3
 {
@@ -78,148 +80,130 @@ struct Vertex
   }
 };
 
-struct MyStruct {
-  std::vector<Vertex> vertex;
 
+struct MyStruct {
+  Vertex vertex[N_POINTS];
+
+  // Serialization function
   template <class Archive>
   void serialize(Archive& archive) {
     archive(vertex);
   }
 };
 
-static int foo(int x, int y) {
-  return x + y;
+void saveDataToStream(std::stringstream& ss, const MyStruct& data) {
+  std::lock_guard<std::mutex> lock(archiveMutex); // Lock the mutex
+  cereal::BinaryOutputArchive archive(ss);
+  archive(data);
+  // The lock will be released when the function exits and lock goes out of scope
+}
+
+std::size_t currentPosition = 0;
+MyStruct deserializedData;
+
+void deserializeData(const std::string& data) {
+  std::lock_guard<std::mutex> lock(archiveMutex); // Lock the mutex
+  std::istringstream iss(data);
+  iss.seekg(currentPosition); // Set the position in the string
+  cereal::BinaryInputArchive archive(iss);
+  
+  // Deserialize your data structure
+  // MyStruct deserializedData;
+  archive(deserializedData);
+  
+  // Perform operations with deserialized data
+  // ...
+  
+  // Update the current position in the string
+  currentPosition = iss.tellg();
+  // The lock will be released when the function exits and lock goes out of scope
 }
 
 
 
-// static std::mutex s_VertexMutex;
-// static void LoadVertices(std::vector<Vertex>& vertices, std::string each_value_str)
-// {
-//   // std::ifstream file_handler(filepath.c_str());
-//   // std::string each_value_str;
 
-//   // for(int i = 0; i < N_POINTS; i++)
-//   // {
-//     Vertex v;
+int main() {
+  // Data to be serialized
+  MyStruct dataToSerialize;
 
-//     file_handler >> each_value_str;
-//     v.Position.v0 = std::stof(each_value_str);
-
-//     file_handler >> each_value_str;
-//     v.Position.v1 = std::stof(each_value_str);
-
-//     file_handler >> each_value_str;
-//     v.Position.v2 = std::stof(each_value_str);
-
-//     file_handler >> each_value_str;
-//     v.Color.v0 = std::stof(each_value_str);
-
-//     file_handler >> each_value_str;
-//     v.Color.v1 = std::stof(each_value_str);
-
-//     file_handler >> each_value_str;
-//     v.Color.v2 = std::stof(each_value_str);
-
-//     std::lock_guard<std::mutex> lock(s_VertexMutex);
-//     vertices.push_back(v);
-//   // }
-// }
-
-int main()
-{ 
-  // MyStruct dataToSerialize;
-  std::vector<Vertex> vertices;
-
-  std::string cloud_file_path = 
+  const char* cloud_file_path = 
     "/home/shreyas/Downloads/cloud_data/induvidual_rows/depth_data_1-100K.txt";
 
   std::ifstream file_handler(cloud_file_path);
   std::string each_value_str;
+
+  for(int i = 0; i < N_POINTS; i++)
+  {
+    Vertex v;
+
+    file_handler >> each_value_str;
+    v.Position.v0 = std::stof(each_value_str);
+
+    file_handler >> each_value_str;
+    v.Position.v1 = std::stof(each_value_str);
+
+    file_handler >> each_value_str;
+    v.Position.v2 = std::stof(each_value_str);
+
+
+    file_handler >> each_value_str;
+    v.Color.v0 = std::stof(each_value_str);
+
+    file_handler >> each_value_str;
+    v.Color.v1 = std::stof(each_value_str);
+
+    file_handler >> each_value_str;
+    v.Color.v2 = std::stof(each_value_str);
+
+    dataToSerialize.vertex[i] = v;
+  }
+
+  // Data data;
+
+  // Number of threads to use for serialization
+  int numThreads = 4;
+
+  // Launch multiple threads to serialize data concurrently
+  std::vector<std::thread> threads;
+  std::vector<std::stringstream> threadOutputStreams(numThreads);
+
+  {
+    Timer timer("Serialize");
+    for (int i = 0; i < numThreads; ++i) {
+      threads.emplace_back(saveDataToStream, std::ref(threadOutputStreams[i]), std::cref(dataToSerialize));
+    }
   
+    // Wait for all threads to finish
+    for (auto& thread : threads) {
+      thread.join();
+    }
 
-  std::future<int> futureResult = std::async(std::launch::async, foo, 10, 20);
-  // int result = futureResult.get();
-  // std::cout << "Result: " << result << std::endl;
+    // Combine serialized data from all threads into the resultString
+    for (const auto& threadOutputStream : threadOutputStreams) {
+      resultString += threadOutputStream.str();
+    }
+  }
+  // ResultString now contains the serialized data from all threads
+  // std::cout << "Serialized Data: " << resultString << std::endl;
 
-  // std::vector<std::future<void>> m_Futures;
-  
-  // {
-    // Timer timer("Load file");
-    // std::async(std::launch::async, LoadVertices, objectsToSerialize, cloud_file_path);
-    // for(int i = 0; i < N_POINTS; i++)
-    // {
-    //   file_handler >> each_value_str;
-    //   m_Futures.push_back(std::async(std::launch::async, LoadVertices, vertices, each_value_str));
-    // }
-    //   Vertex v;
+  {
+    Timer timer("Deserialize");
+    // Number of threads to use for deserialization
+    int numThreads_de = 4;
 
-    //   file_handler >> each_value_str;
-    //   v.Position.v0 = std::stof(each_value_str);
+    // Launch multiple threads to deserialize data concurrently
+    std::vector<std::thread> threads_de;
+    for (int i = 0; i < numThreads_de; ++i) {
+      threads_de.emplace_back(deserializeData, std::cref(resultString));
+    }
 
-    //   file_handler >> each_value_str;
-    //   v.Position.v1 = std::stof(each_value_str);
-
-    //   file_handler >> each_value_str;
-    //   v.Position.v2 = std::stof(each_value_str);
-
-
-    //   file_handler >> each_value_str;
-    //   v.Color.v0 = std::stof(each_value_str);
-
-    //   file_handler >> each_value_str;
-    //   v.Color.v1 = std::stof(each_value_str);
-
-    //   file_handler >> each_value_str;
-    //   v.Color.v2 = std::stof(each_value_str);
-
-    //   objectsToSerialize[i] = v;
-    // }
-  // }
-
-
-
-
-
-
-
-  // std::ostringstream oss;
-  // {
-  //   Timer timer("cereal::BinaryOutputArchive");
-  //   cereal::BinaryOutputArchive archive(oss);
-  //   archive(dataToSerialize);
-  // }
-  
-
-  // std::string serializedData = oss.str();
-  // size_t compresssed_size = 0;
-  // std::unique_ptr<char[]> compressed_buffer;
-  // {
-  //   Timer timer("snappy::RawCompress");
-  //   compressed_buffer = 
-  //     CompressData(serializedData.c_str(), (size_t)serializedData.size(), compresssed_size);
-  // }
-
-  // // At Client end;
-
-  // std::unique_ptr<char[]> uncompressed_buffer(new char[serializedData.size()]);
-  // {
-  //   Timer timer("snappy::Uncompress");
-  //   uncompressed_buffer = DecompressData(compressed_buffer.get(), compresssed_size, (size_t)(serializedData.size()));
-  // }
-
-  // MyStruct receivedStruct;
-  // {
-  //   Timer timer("cereal::BinaryInputArchive");
-  //   // std::istringstream iss(std::string(decompressed_data.begin(), decompressed_data.begin() + decompressed_data.size()));
-  //   std::istringstream iss(std::string(uncompressed_buffer.get(), 
-  //     uncompressed_buffer.get() + serializedData.size()));
-
-  //   cereal::BinaryInputArchive archive(iss);
-  //   archive(receivedStruct);
-  // }
-
-  // assert((receivedStruct.vertex[N_POINTS - 1].Color.v0) == 0.160784f);
-  // std::cout << " allocations: " << s_AllocCount << std::endl;
+    // Wait for all threads to finish
+    for (auto& thread : threads_de) {
+      thread.join();
+    }
+  }
+  // assert(dataToSerialize.vertex[333].Position.v1 == deserializeData.vertex[333].Position.v1);
+  std::cout <<  dataToSerialize.vertex[333].Position.v1 << std::endl;
+  std::cout <<  deserializedData.vertex[333].Position.v1 << std::endl;
   return 0;
 }

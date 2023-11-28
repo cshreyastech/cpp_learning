@@ -266,7 +266,7 @@ add_executable(${serialization}
   
 target_include_directories(${serialization} 
   PRIVATE ${external_dir}
-  PRIVATE ${Snappy_SOURCE_DIR}/snappy
+  PRIVATE ${Snappy_SOURCE_DIR}
   PRIVATE ${cereal_SOURCE_DIR}/include
 )
 
