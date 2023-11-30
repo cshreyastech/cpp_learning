@@ -52,7 +52,7 @@ namespace olc
     float pose;
     T_ML_ROS t_ml_ros;
 
-    void PublishImage(const char image);
+    void PublishImage(unsigned char image_data[]);
 
   private:
     // GLFWwindow* window_;

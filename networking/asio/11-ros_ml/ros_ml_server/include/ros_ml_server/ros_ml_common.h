@@ -10,7 +10,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
 
-// Endoscope to eye or head transformation
+const size_t total_elements = 480 * 640 * 3;
+
 // Endoscope to eye or head transformation
 struct T_ML_ROS
 {
@@ -40,9 +41,10 @@ struct sPlayerDescription
 	// as this is extracted by the client for creating heap variable. 
 	size_t point_cloud_compressed_length = 0;	
 	uint32_t nUniqueID = 0;
-
+	
+	unsigned char test_message;
+	unsigned char image_data[480 * 640 * 3];
   T_ML_ROS t_ml_ros;
-	char point_cloud_compressed[1]; // Flexible array member
 };
 
 #endif

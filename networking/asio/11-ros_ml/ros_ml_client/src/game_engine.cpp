@@ -46,9 +46,9 @@ namespace olc
     return olc::rcode::OK;
   }
 
-  void GameEngine::PublishImage(const char image)
+  void GameEngine::PublishImage(unsigned char image_data[])
   {
-			std::cout << "value_from_server: " << image << std::endl;
+			// std::cout << "value_from_server: " << image << std::endl;
 
   }
 } // namespace olc

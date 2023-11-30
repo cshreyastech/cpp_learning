@@ -95,10 +95,13 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 				{
 					sPlayerDescription desc;
 					msg >> desc;
-					char value_from_server = desc.point_cloud_compressed[0];
+					
 					
 					mapObjects_.insert_or_assign(desc.nUniqueID, desc);
-					GameEngine::PublishImage(value_from_server);
+					
+					std::cout << "test_message: " << desc.test_message << std::endl;
+					std::cout << desc.image_data[100] << std::endl;
+					GameEngine::PublishImage(desc.image_data);
 
 					break;
 				}
