@@ -100,7 +100,6 @@ bool RosMLClient::OnUserUpdate(float fElapsedTime)
 					mapObjects_.insert_or_assign(desc.nUniqueID, desc);
 					
 					std::cout << "test_message: " << desc.test_message << std::endl;
-					std::cout << desc.image_data[100] << std::endl;
 					GameEngine::PublishImage(desc.image_data);
 
 					break;
