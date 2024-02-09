@@ -521,32 +521,92 @@ set(ros_ml_server_header_dir "${PROJECT_SOURCE_DIR}/11-ros_ml/ros_ml_server/incl
 # )
 # target_compile_options(${ros_ml_client} PRIVATE -O3)
 #############################################################
+# SET(OpenCV_DIR ../../../../../software/opencv/installation)
+
+# find_package( OpenCV REQUIRED )
+
+# set(serialization 08_serialization_two_images)
+# add_executable(${serialization}
+#   ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_two_images.cpp
+#   )
+  
+# target_include_directories(${serialization} 
+#   PRIVATE  ${OpenCV_INCLUDE_DIRS}
+#   PRIVATE ${external_dir}
+#   PRIVATE ${Snappy_SOURCE_DIR}/snappy
+#   PRIVATE ${cereal_SOURCE_DIR}/include
+# )
+
+# target_link_libraries(${serialization} 
+#   PRIVATE pthread
+#   PRIVATE snappy
+#   PRIVATE ${OpenCV_LIBS}
+# )
+# set_target_properties(${serialization} PROPERTIES
+#   CXX_STANDARD 17  # or the C++ standard you are using
+#   CXX_STANDARD_REQUIRED YES
+#   CXX_EXTENSIONS NO
+# )
+
+# target_compile_options(${serialization} PRIVATE -O3)
+#############################################################
 SET(OpenCV_DIR ../../../../../software/opencv/installation)
 
 find_package( OpenCV REQUIRED )
 
-set(serialization 08_serialization_two_images)
-add_executable(${serialization}
-  ${PROJECT_SOURCE_DIR}/08-serialization/src/serialization_two_images.cpp
-  )
+set(ros_ml_client_header_dir "${PROJECT_SOURCE_DIR}/12-ros_ml_two_images_compress/ros_ml_client/include")
+set(ros_ml_server_header_dir "${PROJECT_SOURCE_DIR}/12-ros_ml_two_images_compress/ros_ml_server/include")
+
+set(ros_ml_server 12-ros_ml_two_images_compress_server)
+add_executable(${ros_ml_server}
+  ${PROJECT_SOURCE_DIR}/12-ros_ml_two_images_compress/ros_ml_server/src/ros_ml_server.cpp)
   
-target_include_directories(${serialization} 
-  PRIVATE  ${OpenCV_INCLUDE_DIRS}
-  PRIVATE ${external_dir}
-  PRIVATE ${Snappy_SOURCE_DIR}/snappy
+target_include_directories(${ros_ml_server} 
+  PRIVATE ${OpenCV_INCLUDE_DIRS}
+  PRIVATE ${asio_header_dir}
+  PRIVATE ${ros_ml_server_header_dir}
+  PRIVATE ${external_dir}/snappy
   PRIVATE ${cereal_SOURCE_DIR}/include
 )
 
-target_link_libraries(${serialization} 
+target_link_libraries(${ros_ml_server} 
   PRIVATE pthread
   PRIVATE snappy
   PRIVATE ${OpenCV_LIBS}
 )
-set_target_properties(${serialization} PROPERTIES
+
+set_target_properties(${ros_ml_server} PROPERTIES
   CXX_STANDARD 17  # or the C++ standard you are using
   CXX_STANDARD_REQUIRED YES
   CXX_EXTENSIONS NO
 )
+target_compile_options(${ros_ml_server} PRIVATE -O3)
 
-target_compile_options(${serialization} PRIVATE -O3)
+set(ros_ml_client 12-ros_ml_two_images_compress_client)
+add_executable(${ros_ml_client}
+  ${PROJECT_SOURCE_DIR}/12-ros_ml_two_images_compress/ros_ml_client/src/game_engine.cpp
+  ${PROJECT_SOURCE_DIR}/12-ros_ml_two_images_compress/ros_ml_client/src/ros_ml_client.cpp
+  )
+  
+target_include_directories(${ros_ml_client} 
+  PRIVATE ${OpenCV_INCLUDE_DIRS}
+  PRIVATE ${asio_header_dir}
+  PRIVATE ${ros_ml_server_header_dir}
+  PRIVATE ${ros_ml_client_header_dir}
+  PRIVATE ${external_dir}/snappy
+  PRIVATE ${cereal_SOURCE_DIR}/include
+)
+
+target_link_libraries(${ros_ml_client} 
+  PRIVATE pthread
+  PRIVATE snappy
+  PRIVATE ${OpenCV_LIBS}
+)
+
+set_target_properties(${ros_ml_client} PROPERTIES
+  CXX_STANDARD 17  # or the C++ standard you are using
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO
+)
+target_compile_options(${ros_ml_client} PRIVATE -O3)
 #############################################################
